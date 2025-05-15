@@ -28,18 +28,51 @@
       <div class="container">
         <h2 class="text-h3 text-center q-mb-xl">Tournois à venir</h2>
         
+        <!-- Ajout du système de recherche par date -->
+        <div class="date-search q-mb-lg">
+          <div class="row justify-center q-col-gutter-md">
+            <div class="col-12 col-sm-5 col-md-4">
+              <q-input
+                v-model="dateFilter.startDate"
+                filled
+                type="date"
+                label="Date de début"
+                @update:model-value="filterTournaments"
+              />
+            </div>
+            <div class="col-12 col-sm-5 col-md-4">
+              <q-input
+                v-model="dateFilter.endDate"
+                filled
+                type="date"
+                label="Date de fin"
+                @update:model-value="filterTournaments"
+              />
+            </div>
+            <div class="col-12 col-sm-2 col-md-2 flex items-center justify-center">
+              <q-btn 
+                color="secondary" 
+                icon="filter_alt_off" 
+                label="Réinitialiser" 
+                flat 
+                @click="resetFilters" 
+              />
+            </div>
+          </div>
+        </div>
+        
         <div v-if="loading" class="text-center">
           <q-spinner size="3em" color="primary" />
           <p class="text-subtitle1 q-mt-md">Chargement des tournois...</p>
         </div>
         
-        <div v-else-if="tournaments.length === 0" class="text-center q-pa-xl">
+        <div v-else-if="filteredTournaments.length === 0" class="text-center q-pa-xl">
           <q-icon name="event_busy" size="4em" color="grey-7" />
-          <p class="text-subtitle1 q-mt-md">Aucun tournoi à venir pour le moment.</p>
+          <p class="text-subtitle1 q-mt-md">Aucun tournoi ne correspond à votre recherche.</p>
         </div>
         
         <div v-else class="row q-col-gutter-lg">
-          <div v-for="tournament in tournaments" :key="tournament._id" class="col-12 col-sm-6 col-md-4">
+          <div v-for="tournament in filteredTournaments" :key="tournament._id" class="col-12 col-sm-6 col-md-4">
             <q-card class="tournament-card" flat bordered>
               <q-img 
                 :src="tournament.imageUrl || '/Image1MainMenu.png'" 
@@ -56,6 +89,47 @@
                   {{ tournament.description || 'Pas de description disponible.' }}
                 </div>
               </q-card-section>
+              
+              <!-- Affichage des catégories -->
+              <q-card-section v-if="tournament.categories && tournament.categories.length > 0">
+                <q-expansion-item
+                  icon="category"
+                  label="Catégories"
+                  caption="Cliquez pour voir les détails"
+                  header-class="text-primary"
+                >
+                  <q-card>
+                    <q-card-section>
+                      <q-list dense separator>
+                        <q-item v-for="category in tournament.categories" :key="category._id">
+                          <q-item-section>
+                            <q-item-label>{{ category.name }}</q-item-label>
+                            <q-item-label caption>
+                             
+                              <template v-if="category.weightMin || category.weightMax">
+                                | {{ category.weightMin || '0' }}-{{ category.weightMax || '∞' }} kg
+                              </template>
+                              <template v-if="category.gender">
+                                | {{ category.gender === 'M' ? 'Hommes' : category.gender === 'F' ? 'Femmes' : 'Mixte' }}
+                              </template>
+                            </q-item-label>
+                          </q-item-section>
+                          <q-item-section side>
+                            <q-chip 
+                              size="sm" 
+                              :color="category.type === 'individual' ? 'blue' : 'green'" 
+                              text-color="white"
+                            >
+                              {{ category.type === 'individual' ? 'Individuel' : 'Poids' }}
+                            </q-chip>
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+              </q-card-section>
+              
               <q-card-actions>
                 <q-btn flat color="primary" label="Voir détails" @click="showAuthModal = true" />
                 <q-space />
@@ -153,8 +227,13 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const loading = ref(true);
 const tournaments = ref([]);
+const filteredTournaments = ref([]);
 const showAuthModal = ref(false);
 const isRegister = ref(false);
+const dateFilter = ref({
+  startDate: '',
+  endDate: ''
+});
 
 // Formater les dates pour l'affichage
 const formatDate = (dateStr) => {
@@ -168,6 +247,27 @@ const toggleAuthMode = (mode) => {
   showAuthModal.value = true;
 };
 
+// Filtrer les tournois par date
+const filterTournaments = () => {
+  const { startDate, endDate } = dateFilter.value;
+  filteredTournaments.value = tournaments.value.filter(tournament => {
+    const tournamentStartDate = new Date(tournament.startDate);
+    const tournamentEndDate = new Date(tournament.endDate);
+    const filterStartDate = startDate ? new Date(startDate) : null;
+    const filterEndDate = endDate ? new Date(endDate) : null;
+
+    return (!filterStartDate || tournamentStartDate >= filterStartDate) &&
+           (!filterEndDate || tournamentEndDate <= filterEndDate);
+  });
+};
+
+// Réinitialiser les filtres
+const resetFilters = () => {
+  dateFilter.value.startDate = '';
+  dateFilter.value.endDate = '';
+  filteredTournaments.value = tournaments.value;
+};
+
 // Récupérer la liste des tournois publics
 const fetchTournaments = async () => {
   loading.value = true;
@@ -175,9 +275,11 @@ const fetchTournaments = async () => {
     // Endpoint pour récupérer les tournois publics ou à venir
     const response = await api.get('/tournaments/public');
     tournaments.value = response.data;
+    filteredTournaments.value = response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des tournois:', error);
     tournaments.value = [];
+    filteredTournaments.value = [];
   } finally {
     loading.value = false;
   }
@@ -320,5 +422,9 @@ onMounted(() => {
 
 .auth-buttons {
   margin-top: 30px;
+}
+
+.date-search {
+  margin-bottom: 30px;
 }
 </style>

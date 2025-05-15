@@ -7,6 +7,7 @@ const categoryRoutes = require('./categories');
 const teamRoutes = require('./teams');
 const pouleRoutes = require('./poules');
 const backupRoutes = require('./backups');
+const clubRoutes = require('./clubs');
 
 async function routes(fastify, options) {
   // Préfixe API pour toutes les routes
@@ -18,6 +19,7 @@ async function routes(fastify, options) {
   fastify.register(teamRoutes, { prefix: '/api/teams' });
   fastify.register(pouleRoutes, { prefix: '/api/poules' });
   fastify.register(backupRoutes, { prefix: '/api/backups' });
+  fastify.register(clubRoutes, { prefix: '/api/clubs' });
   
   // La route racine est déjà définie dans app.js, nous la supprimons ici
   // pour éviter l'erreur de duplication

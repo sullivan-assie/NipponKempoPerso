@@ -108,7 +108,8 @@ const routes = [
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: 'users', component: () => import('pages/admin/UserManagementPage.vue') }
+      { path: 'users', component: () => import('pages/admin/UserManagementPage.vue') },
+      { path: 'clubs', component: () => import('pages/ClubsPage.vue') }
     ],
     meta: { requiresAuth: true, requiresAdmin: true }
   },

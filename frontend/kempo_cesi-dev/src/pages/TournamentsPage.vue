@@ -82,7 +82,17 @@
               </div>
             </q-card-section>
             <q-card-actions align="between">
-              <q-btn flat color="primary" label="Voir détails" @click="viewTournamentDetails(tournament._id)" />
+              <div>
+                <q-btn flat color="primary" label="Voir détails" @click="viewTournamentDetails(tournament._id)" />
+                <!-- Bouton de suppression pour les admins -->
+                <q-btn 
+                  v-if="isAdmin"
+                  flat 
+                  color="negative" 
+                  icon="delete" 
+                  @click.stop="confirmDeleteTournament(tournament)"
+                />
+              </div>
               
               <!-- Badge pour le nombre de catégories -->
               <div>
@@ -142,6 +152,35 @@
       v-model="showCreateTournamentDialog"
       @tournament-created="onTournamentCreated"
     />
+    
+    <!-- Modal pour la confirmation de suppression de tournoi -->
+    <q-dialog v-model="showDeleteDialog" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section class="row items-center">
+          <q-avatar icon="delete" color="negative" text-color="white" />
+          <span class="q-ml-sm text-h6">Confirmation de suppression</span>
+        </q-card-section>
+
+        <q-card-section>
+          <p>Êtes-vous sûr de vouloir supprimer le tournoi "<strong>{{ tournamentToDelete?.name }}</strong>" ?</p>
+          <p class="text-caption text-negative">
+            <q-icon name="warning" />
+            Cette action est irréversible. Toutes les données associées à ce tournoi seront définitivement perdues.
+          </p>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Annuler" color="primary" v-close-popup @click="cancelDelete" />
+          <q-btn 
+            flat 
+            label="Supprimer" 
+            color="negative" 
+            @click="deleteTournament" 
+            :loading="deletingTournament"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     
     <!-- Modal pour afficher les participants (admin seulement) -->
     <q-dialog v-model="showParticipantsDialog" persistent>
@@ -208,6 +247,11 @@ const router = useRouter();
 const loading = ref(true);
 const tournaments = ref([]);
 const showCreateTournamentDialog = ref(false);
+
+// Variables pour la suppression de tournoi
+const showDeleteDialog = ref(false);
+const tournamentToDelete = ref(null);
+const deletingTournament = ref(false);
 
 // États pour gérer l'inscription
 const processingRegistration = ref({});
@@ -528,6 +572,44 @@ const onTournamentCreated = (newTournament) => {
   
   // Rafraîchir la liste des tournois
   fetchTournaments();
+};
+
+// Confirmer la suppression d'un tournoi
+const confirmDeleteTournament = async (tournament) => {
+  tournamentToDelete.value = tournament;
+  showDeleteDialog.value = true;
+};
+
+const cancelDelete = () => {
+  showDeleteDialog.value = false;
+  tournamentToDelete.value = null;
+};
+
+const deleteTournament = async () => {
+  if (!tournamentToDelete.value) return;
+
+  deletingTournament.value = true;
+
+  try {
+    await api.delete(`/tournaments/${tournamentToDelete.value._id}`);
+    $q.notify({
+      color: 'positive',
+      message: `Le tournoi "${tournamentToDelete.value.name}" a été supprimé avec succès`,
+      icon: 'check_circle'
+    });
+    fetchTournaments();
+  } catch (error) {
+    console.error('Erreur lors de la suppression du tournoi:', error);
+    $q.notify({
+      color: 'negative',
+      message: 'Erreur lors de la suppression du tournoi',
+      icon: 'error'
+    });
+  } finally {
+    deletingTournament.value = false;
+    showDeleteDialog.value = false;
+    tournamentToDelete.value = null;
+  }
 };
 
 // Charger les tournois au montage du composant

@@ -25,14 +25,24 @@
           <div class="col-12 col-md-8">
             <div class="row items-center justify-between">
               <h1 class="text-h3 q-mb-md">{{ tournament.name }}</h1>
-              <q-btn
-                v-if="isAdmin"
-                icon="edit"
-                color="primary"
-                label="Modifier"
-                @click="showEditDialog = true"
-                class="q-mb-md"
-              />
+              <div>
+                <q-btn
+                  v-if="isAdmin"
+                  icon="edit"
+                  color="primary"
+                  label="Modifier"
+                  @click="showEditDialog = true"
+                  class="q-mb-md q-mr-sm"
+                />
+                <q-btn
+                  v-if="isAdmin"
+                  icon="delete"
+                  color="negative"
+                  label="Supprimer"
+                  @click="showDeleteDialog = true"
+                  class="q-mb-md"
+                />
+              </div>
             </div>
             <div class="text-body1 q-mb-md tournament-description">
               {{ tournament.description || 'Pas de description pour ce tournoi.' }}
@@ -227,6 +237,35 @@
       :tournament-categories="tournament?.categories || []"
       @categories-updated="onCategoriesUpdated"
     />
+    
+    <!-- Dialogue pour confirmer la suppression du tournoi -->
+    <q-dialog v-model="showDeleteDialog" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section class="row items-center">
+          <q-avatar icon="delete" color="negative" text-color="white" />
+          <span class="q-ml-sm text-h6">Confirmation de suppression</span>
+        </q-card-section>
+
+        <q-card-section>
+          <p>Êtes-vous sûr de vouloir supprimer le tournoi "<strong>{{ tournament?.name }}</strong>" ?</p>
+          <p class="text-caption text-negative">
+            <q-icon name="warning" />
+            Cette action est irréversible. Toutes les données associées à ce tournoi (catégories, compétiteurs, matchs, etc.) seront définitivement perdues.
+          </p>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Annuler" color="primary" v-close-popup @click="cancelDelete" />
+          <q-btn 
+            flat 
+            label="Supprimer" 
+            color="negative" 
+            @click="deleteTournament" 
+            :loading="deletingTournament"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -244,6 +283,7 @@ import CountryFlag from 'vue-country-flag-next';
 
 const $q = useQuasar();
 const route = useRoute();
+const router = useRouter();
 const loading = ref(true);
 const tournament = ref(null);
 const competitors = ref([]);
@@ -255,6 +295,8 @@ const showAddUsersDialog = ref(false);
 const showAddCompetitorsDialog = ref(false);
 const showEditDialog = ref(false);
 const showCategoryManagerDialog = ref(false);
+const showDeleteDialog = ref(false);
+const deletingTournament = ref(false);
 
 // Liste des IDs des compétiteurs actuellement dans le tournoi
 const currentCompetitorIds = computed(() => {
@@ -481,6 +523,37 @@ const onCategoriesUpdated = async () => {
 
   // Recharger les détails du tournoi
   await fetchTournamentDetails();
+};
+
+// Confirmer et exécuter la suppression du tournoi
+const deleteTournament = async () => {
+  deletingTournament.value = true;
+  try {
+    const tournamentId = route.params.id;
+    await api.delete(`/tournaments/${tournamentId}`);
+    
+    $q.notify({
+      color: 'positive',
+      message: `Le tournoi "${tournament.value.name}" a été supprimé avec succès`,
+      icon: 'check_circle'
+    });
+    
+    // Redirection vers la page des tournois en utilisant le router défini au niveau du composant
+    router.push('/tournaments');
+  } catch (error) {
+    console.error('Erreur lors de la suppression du tournoi:', error);
+    $q.notify({
+      color: 'negative',
+      message: error.response?.data?.message || 'Erreur lors de la suppression du tournoi',
+      icon: 'error'
+    });
+  } finally {
+    deletingTournament.value = false;
+  }
+};
+
+const cancelDelete = () => {
+  showDeleteDialog.value = false;
 };
 
 // Charger les détails du tournoi au montage du composant

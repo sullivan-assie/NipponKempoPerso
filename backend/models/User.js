@@ -28,6 +28,15 @@ const UserSchema = new Schema({
     required: false, // Modification pour rendre le champ non obligatoire
     default: ''
   },
+  club: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Club',
+    required: false
+  },
+  isClubCoach: {
+    type: Boolean,
+    default: false
+  },
   fighterNumber: {
     type: String,
     required: function() { return this.role === 'user'; }, // Obligatoire seulement pour les utilisateurs standards

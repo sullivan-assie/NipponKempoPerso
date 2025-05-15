@@ -35,18 +35,43 @@
         </q-btn> -->
         
         <!-- Bouton Administration pour les admins -->
-        <q-btn
+        <q-btn-dropdown
           flat
-          round
           dense
           icon="admin_panel_settings"
           class="q-mr-sm"
           aria-label="Administration"
-          @click="goToAdmin"
           v-if="isUserLoggedIn && isAdmin"
         >
-          <q-tooltip>Gestion administrateur</q-tooltip>
-        </q-btn>
+          <q-list>
+            <q-item clickable v-close-popup @click="router.push('/admin/users')">
+              <q-item-section avatar>
+                <q-icon name="people" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Gestion des utilisateurs</q-item-label>
+              </q-item-section>
+            </q-item>
+            
+            <q-item clickable v-close-popup @click="router.push('/admin/clubs')">
+              <q-item-section avatar>
+                <q-icon name="business" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Gestion des clubs</q-item-label>
+              </q-item-section>
+            </q-item>
+            
+            <q-item clickable v-close-popup @click="router.push('/tournaments')">
+              <q-item-section avatar>
+                <q-icon name="emoji_events" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Gestion des tournois</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
         
         <!-- Bouton Sauvegarde pour les admins -->
         <q-btn
