@@ -1,213 +1,376 @@
 <template>
-  <q-page class="landing-page">
-    <!-- Section d'entête -->
-    <div class="header-section">
-      <div class="header-content">
-        <div class="logo-container">
-          <img src="/kempoimh.png" alt="Nippon Kempo" class="logo" />
-        </div>
-
-        <div class="header-text">
-          <h1 class="text-h2 text-weight-bold text-black">Nippon Kempo</h1>
-          <p class="text-h5 q-mb-lg">Gestion de tournois et compétitions</p>
-          <div class="auth-buttons">
-            <q-btn
-              color="primary"
-              label="Connexion / Inscription"
-              size="lg"
-              rounded
-              @click="showAuthModal = true"
-            />
+  <q-page class="landing-page bg-dark-page text-white">
+    <!-- Hero Section -->
+    <section class="hero-section bg-dark text-white">
+      <div class="container q-pa-xl">
+        <div class="row items-center q-col-gutter-xl">
+          <div class="col-12 col-md-7">
+            <q-badge color="grey-8" text-color="grey-3" class="q-mb-md">
+              <q-icon name="sports_martial_arts" class="q-mr-xs" />
+              Plateforme officielle
+            </q-badge>
+            
+            <h1 class="text-h2 text-weight-bold q-mb-md text-white">
+              Nippon Kempo Tournament Manager
+            </h1>
+            
+            <p class="text-h6 text-weight-light q-mb-xl text-grey-4">
+              La solution complète pour organiser et gérer vos tournois de Nippon Kempo. 
+              Inscriptions, brackets, résultats en temps réel.
+            </p>
+            
+            <div class="q-gutter-md">
+              <q-btn
+                size="lg"
+                color="negative"
+                text-color="white"
+                label="Commencer"
+                icon="rocket_launch"
+                outline
+                class="github-btn-important"
+                @click="showAuthModal = true"
+              />
+              <q-btn
+                size="lg"
+                color="grey-6"
+                text-color="white"
+                label="En savoir plus"
+                outline
+                class="github-btn"
+                @click="scrollToTournaments"
+              />
+            </div>
+          </div>
+          
+          <div class="col-12 col-md-5 text-center">
+            <q-card class="hero-card bg-grey-9 text-white">
+              <q-card-section class="text-center">
+                <q-avatar size="80px">
+                  <img src="/kempoimh.png" alt="Logo" />
+                </q-avatar>
+                <div class="text-h6 q-mt-md text-white">Tournoi National 2025</div>
+                <q-linear-progress value="0.7" color="primary" class="q-my-md" />
+                <div class="text-body2 text-grey-4">142 participants inscrits</div>
+              </q-card-section>
+            </q-card>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Section des tournois -->
-    <div class="tournaments-section q-pa-md q-py-lg">
+    <!-- Section Separator -->
+    <div class="section-separator"></div>
+    
+    <!-- Tournaments Section -->
+    <section ref="tournamentsSection" class="q-pa-xl bg-dark">
       <div class="container">
-        <h2 class="text-h3 text-center q-mb-xl">Tournois à venir</h2>
-        
-        <!-- Ajout du système de recherche par date -->
-        <div class="date-search q-mb-lg">
-          <div class="row justify-center q-col-gutter-md">
-            <div class="col-12 col-sm-5 col-md-4">
-              <q-input
-                v-model="dateFilter.startDate"
-                filled
-                type="date"
-                label="Date de début"
-                @update:model-value="filterTournaments"
-              />
-            </div>
-            <div class="col-12 col-sm-5 col-md-4">
-              <q-input
-                v-model="dateFilter.endDate"
-                filled
-                type="date"
-                label="Date de fin"
-                @update:model-value="filterTournaments"
-              />
-            </div>
-            <div class="col-12 col-sm-2 col-md-2 flex items-center justify-center">
-              <q-btn 
-                color="secondary" 
-                icon="filter_alt_off" 
-                label="Réinitialiser" 
-                flat 
-                @click="resetFilters" 
-              />
-            </div>
-          </div>
+        <div class="text-center q-mb-xl">
+          <h2 class="text-h3 text-weight-bold q-mb-md text-white">Tournois à venir</h2>
+          <p class="text-body1 text-grey-4">
+            Découvrez les prochains tournois et inscrivez-vous dès maintenant
+          </p>
         </div>
         
-        <div v-if="loading" class="text-center">
+        <!-- Search Filters -->
+        <q-card flat class="github-card q-mb-xl">
+          <q-card-section>
+            <div class="row justify-center q-col-gutter-md">
+              <div class="col-12 col-sm-5 col-md-4">
+                <q-input
+                  v-model="dateFilter.startDate"
+                  outlined
+                  type="date"
+                  label="Date de début"
+                  dark
+                  color="grey-4"
+                  label-color="grey-4"
+                  class="github-input"
+                  @update:model-value="filterTournaments"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="event" color="grey-4" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="col-12 col-sm-5 col-md-4">
+                <q-input
+                  v-model="dateFilter.endDate"
+                  outlined
+                  type="date"
+                  label="Date de fin"
+                  dark
+                  color="grey-4"
+                  label-color="grey-4"
+                  class="github-input"
+                  @update:model-value="filterTournaments"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="event" color="grey-4" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="col-12 col-sm-2 col-md-1 flex items-end justify-center">
+                <q-btn
+                  color="grey-6"
+                  text-color="white"
+                  icon="refresh"
+                  outline
+                  round
+                  class="github-btn-icon"
+                  @click="resetFilters"
+                >
+                  <q-tooltip>Réinitialiser les filtres</q-tooltip>
+                </q-btn>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+        
+        <!-- Loading -->
+        <div v-if="loading" class="text-center q-pa-xl">
           <q-spinner size="3em" color="primary" />
-          <p class="text-subtitle1 q-mt-md">Chargement des tournois...</p>
+          <p class="text-h6 q-mt-md text-grey-4">Chargement...</p>
         </div>
         
+        <!-- Empty State -->
         <div v-else-if="filteredTournaments.length === 0" class="text-center q-pa-xl">
-          <q-icon name="event_busy" size="4em" color="grey-7" />
-          <p class="text-subtitle1 q-mt-md">Aucun tournoi ne correspond à votre recherche.</p>
+          <q-icon name="event_busy" size="4em" color="grey-6" />
+          <h3 class="text-h5 q-mt-md text-grey-4">Aucun tournoi trouvé</h3>
+          <p class="text-body1 text-grey-5 q-mb-md">
+            Aucun tournoi ne correspond à vos critères.
+          </p>
+          <q-btn 
+            color="grey-6"
+            text-color="white"
+            label="Réinitialiser" 
+            outline
+            class="github-btn"
+            @click="resetFilters" 
+          />
         </div>
         
+        <!-- Tournaments Grid -->
         <div v-else class="row q-col-gutter-lg">
-          <div v-for="tournament in filteredTournaments" :key="tournament._id" class="col-12 col-sm-6 col-md-4">
-            <q-card class="tournament-card" flat bordered>
+          <div 
+            v-for="tournament in filteredTournaments" 
+            :key="tournament._id" 
+            class="col-12 col-sm-6 col-lg-4"
+          >
+            <q-card flat class="github-card full-height">
               <q-img 
                 :src="tournament.imageUrl || '/Image1MainMenu.png'" 
                 height="200px"
-                class="tournament-image"
+                class="bg-grey-8"
               />
+              
               <q-card-section>
-                <div class="text-h6">{{ tournament.name }}</div>
-                <div class="text-subtitle2">{{ formatDate(tournament.startDate) }} - {{ formatDate(tournament.endDate) }}</div>
-                <div class="text-body2 q-mt-sm">{{ tournament.location }}</div>
-              </q-card-section>
-              <q-card-section>
-                <div class="text-body2">
-                  {{ tournament.description || 'Pas de description disponible.' }}
+                <div class="row items-center q-mb-sm">
+                  <q-chip 
+                    color="grey-8" 
+                    text-color="grey-3" 
+                    icon="schedule"
+                    size="sm"
+                  >
+                    {{ formatDateRange(tournament.startDate, tournament.endDate) }}
+                  </q-chip>
+                  <q-space />
+                  <q-badge 
+                    v-if="tournament.categories?.length"
+                    color="grey-7"
+                    text-color="white"
+                  >
+                    {{ tournament.categories.length }} catégorie{{ tournament.categories.length > 1 ? 's' : '' }}
+                  </q-badge>
                 </div>
+                
+                <h3 class="text-h6 text-weight-medium q-mb-sm text-white">
+                  {{ tournament.name }}
+                </h3>
+                
+                <div class="row items-center q-mb-sm text-grey-4">
+                  <q-icon name="location_on" class="q-mr-xs" />
+                  <span>{{ tournament.location }}</span>
+                </div>
+                
+                <p class="text-body2 text-grey-5">
+                  {{ tournament.description || 'Pas de description disponible.' }}
+                </p>
               </q-card-section>
               
-              <!-- Affichage des catégories -->
-              <q-card-section v-if="tournament.categories && tournament.categories.length > 0">
+              <!-- Categories -->
+              <q-card-section v-if="tournament.categories?.length" class="q-pt-none">
                 <q-expansion-item
                   icon="category"
-                  label="Catégories"
-                  caption="Cliquez pour voir les détails"
-                  header-class="text-primary"
+                  label="Voir les catégories"
+                  :caption="`${tournament.categories.length} catégorie(s)`"
+                  text-color="grey-4"
+                  dark
                 >
-                  <q-card>
-                    <q-card-section>
-                      <q-list dense separator>
-                        <q-item v-for="category in tournament.categories" :key="category._id">
-                          <q-item-section>
-                            <q-item-label>{{ category.name }}</q-item-label>
-                            <q-item-label caption>
-                             
-                              <template v-if="category.weightMin || category.weightMax">
-                                | {{ category.weightMin || '0' }}-{{ category.weightMax || '∞' }} kg
-                              </template>
-                              <template v-if="category.gender">
-                                | {{ category.gender === 'M' ? 'Hommes' : category.gender === 'F' ? 'Femmes' : 'Mixte' }}
-                              </template>
-                            </q-item-label>
-                          </q-item-section>
-                          <q-item-section side>
-                            <q-chip 
-                              size="sm" 
-                              :color="category.type === 'individual' ? 'blue' : 'green'" 
-                              text-color="white"
-                            >
-                              {{ category.type === 'individual' ? 'Individuel' : 'Poids' }}
-                            </q-chip>
-                          </q-item-section>
-                        </q-item>
-                      </q-list>
-                    </q-card-section>
-                  </q-card>
+                  <q-list dense dark>
+                    <q-item v-for="category in tournament.categories" :key="category._id">
+                      <q-item-section>
+                        <q-item-label class="text-grey-3">{{ category.name }}</q-item-label>
+                        <q-item-label caption class="text-grey-5">
+                          <span v-if="category.weightMin || category.weightMax">
+                            {{ category.weightMin || '0' }}-{{ category.weightMax || '∞' }} kg
+                          </span>
+                          <span v-if="category.gender" class="q-ml-sm">
+                            • {{ category.gender === 'M' ? 'Hommes' : category.gender === 'F' ? 'Femmes' : 'Mixte' }}
+                          </span>
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-chip 
+                          :color="category.type === 'individual' ? 'primary' : 'secondary'" 
+                          text-color="white"
+                          size="sm"
+                        >
+                          {{ category.type === 'individual' ? 'Individuel' : 'Poids' }}
+                        </q-chip>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
                 </q-expansion-item>
               </q-card-section>
               
               <q-card-actions>
-                <q-btn flat color="primary" label="Voir détails" @click="showAuthModal = true" />
-                <q-space />
-                <q-badge color="secondary" v-if="tournament.categories?.length">
-                  {{ tournament.categories?.length }} catégorie{{ tournament.categories?.length > 1 ? 's' : '' }}
-                </q-badge>
+                <q-btn 
+                  color="grey-6" 
+                  text-color="white"
+                  label="Voir détails" 
+                  outline
+                  class="github-btn"
+                  @click="showAuthModal = true" 
+                />
               </q-card-actions>
             </q-card>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Section description -->
-    <div class="feature-section q-pa-md q-py-lg bg-grey-2">
+    <!-- Section Separator -->
+    <div class="section-separator"></div>
+
+    <!-- Features Section -->
+    <section class="bg-dark q-pa-xl">
       <div class="container">
-        <div class="row q-col-gutter-xl">
-          <div class="col-12 col-md-6">
-            <h3 class="text-h4 q-mb-md">Organisez vos tournois de Nippon Kempo</h3>
-            <p class="text-body1">
-              Notre plateforme vous permet de gérer facilement tous les aspects de vos tournois de Nippon Kempo :
-            </p>
-            <ul class="text-body1 q-my-md">
-              <li class="q-mb-sm">Création et gestion de tournois</li>
-              <li class="q-mb-sm">Inscription des compétiteurs et formation d'équipes</li>
-              <li class="q-mb-sm">Génération automatique de poules et de brackets</li>
-              <li class="q-mb-sm">Suivi des résultats en temps réel</li>
-            </ul>
-            <p class="text-body1">
-              Pour accéder à toutes les fonctionnalités, veuillez vous connecter ou créer un compte.
-            </p>
-            <q-btn color="primary" label="En savoir plus" flat @click="showAuthModal = true" />
-          </div>
-          <div class="col-12 col-md-6 flex flex-center">
-            <img src="/Image3MainMenu.png" class="feature-image" alt="Gestion de tournoi" />
+        <div class="text-center q-mb-xl">
+          <h2 class="text-h3 text-weight-bold q-mb-md text-white">Fonctionnalités</h2>
+          <p class="text-body1 text-grey-4">
+            Tout ce dont vous avez besoin pour gérer vos tournois
+          </p>
+        </div>
+        
+        <div class="row q-col-gutter-lg">
+          <div 
+            v-for="feature in features" 
+            :key="feature.title" 
+            class="col-12 col-sm-6 col-lg-4"
+          >
+            <q-card flat class="github-card text-center q-pa-lg full-height">
+              <q-icon 
+                :name="feature.icon" 
+                :color="feature.color" 
+                size="3rem" 
+                class="q-mb-md" 
+              />
+              <h4 class="text-h6 text-weight-medium q-mb-sm text-white">
+                {{ feature.title }}
+              </h4>
+              <p class="text-body2 text-grey-4">
+                {{ feature.description }}
+              </p>
+            </q-card>
           </div>
         </div>
+        
+        <div class="text-center q-mt-xl">
+          <q-btn 
+            size="lg"
+            color="negative"
+            text-color="white"
+            label="Découvrir toutes les fonctionnalités" 
+            outline
+            class="github-btn-important"
+            @click="showAuthModal = true" 
+          />
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- Footer -->
-    <div class="footer-section q-pa-md bg-dark text-white">
+    <footer class="bg-grey-9 text-white q-pa-xl github-footer">
       <div class="container">
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-4 q-mb-md">
-            <h6 class="text-h6">Nippon Kempo</h6>
-            <p class="text-body2">
-              Plateforme de gestion de tournois et compétitions de Nippon Kempo.
+        <div class="row q-col-gutter-lg">
+          <div class="col-12 col-md-4">
+            <div class="row items-center q-mb-md">
+              <q-avatar size="32px" class="q-mr-sm">
+                <img src="/kempoimh.png" alt="Logo" />
+              </q-avatar>
+              <span class="text-h6 text-weight-medium text-white">Nippon Kempo</span>
+            </div>
+            <p class="text-body2 text-grey-4">
+              La plateforme de référence pour organiser et gérer vos tournois de Nippon Kempo.
             </p>
           </div>
-          <div class="col-12 col-md-4 q-mb-md">
-            <h6 class="text-h6">Liens rapides</h6>
-            <q-list dense>
-              <q-item clickable @click="toggleAuthMode('login')">
+          
+          <div class="col-12 col-md-2">
+            <h6 class="text-subtitle1 text-weight-medium q-mb-md text-grey-3">Plateforme</h6>
+            <q-list dense class="text-grey-5">
+              <q-item clickable @click="toggleAuthMode('login')" class="text-grey-5">
                 <q-item-section>Connexion</q-item-section>
               </q-item>
-              <q-item clickable @click="toggleAuthMode('register')">
+              <q-item clickable @click="toggleAuthMode('register')" class="text-grey-5">
                 <q-item-section>Inscription</q-item-section>
-              </q-item>
-              <q-item clickable to="/forgot-password">
-                <q-item-section>Mot de passe oublié</q-item-section>
               </q-item>
             </q-list>
           </div>
-          <div class="col-12 col-md-4 q-mb-md">
-            <h6 class="text-h6">Contact</h6>
-            <p class="text-body2">
-              Pour toute question ou assistance, contactez-nous à support@nipponkempo.fr
-            </p>
+          
+          <div class="col-12 col-md-3">
+            <h6 class="text-subtitle1 text-weight-medium q-mb-md text-grey-3">Support</h6>
+            <q-list dense class="text-grey-5">
+              <q-item clickable class="text-grey-5">
+                <q-item-section>Centre d'aide</q-item-section>
+              </q-item>
+              <q-item clickable class="text-grey-5">
+                <q-item-section>Contact</q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          
+          <div class="col-12 col-md-3">
+            <h6 class="text-subtitle1 text-weight-medium q-mb-md text-grey-3">Contact</h6>
+            <div class="text-body2 text-grey-5">
+              <div class="q-mb-sm">
+                <q-icon name="email" class="q-mr-sm" />
+                support@nipponkempo.fr
+              </div>
+              <div class="q-mb-sm">
+                <q-icon name="location_on" class="q-mr-sm" />
+                Paris, France
+              </div>
+            </div>
           </div>
         </div>
-        <div class="text-center q-pt-md q-mt-md" style="border-top: 1px solid rgba(255, 255, 255, 0.2);">
-          <p class="text-caption">© {{ new Date().getFullYear() }} Nippon Kempo - Tous droits réservés</p>
+        
+        <q-separator color="grey-8" class="q-my-lg" />
+        
+        <div class="row items-center">
+          <div class="col-12 col-md-6">
+            <p class="text-caption text-grey-6">
+              © {{ new Date().getFullYear() }} Nippon Kempo. Tous droits réservés.
+            </p>
+          </div>
+          <div class="col-12 col-md-6 text-right">
+            <q-btn flat size="sm" label="Mentions légales" color="grey-5" />
+            <q-btn flat size="sm" label="Confidentialité" color="grey-5" />
+          </div>
         </div>
       </div>
-    </div>
+    </footer>
 
-    <!-- Modal d'authentification -->
+    <!-- Auth Modal -->
     <auth-modal
       :isOpen="showAuthModal"
       :initialMode="isRegister ? 'register' : 'login'"
@@ -230,24 +393,79 @@ const tournaments = ref([]);
 const filteredTournaments = ref([]);
 const showAuthModal = ref(false);
 const isRegister = ref(false);
+const tournamentsSection = ref(null);
+
 const dateFilter = ref({
   startDate: '',
   endDate: ''
 });
 
-// Formater les dates pour l'affichage
+const features = [
+  {
+    icon: 'event_note',
+    color: 'primary',
+    title: 'Gestion de tournois',
+    description: 'Créez et gérez facilement vos tournois avec notre interface intuitive.'
+  },
+  {
+    icon: 'groups',
+    color: 'secondary',
+    title: 'Inscriptions en ligne',
+    description: 'Permettez aux participants de s\'inscrire directement en ligne.'
+  },
+  {
+    icon: 'account_tree',
+    color: 'accent',
+    title: 'Brackets automatiques',
+    description: 'Génération automatique des poules et des arbres de tournoi.'
+  },
+  {
+    icon: 'speed',
+    color: 'positive',
+    title: 'Résultats temps réel',
+    description: 'Suivez et partagez les résultats en direct pendant les compétitions.'
+  },
+  {
+    icon: 'analytics',
+    color: 'info',
+    title: 'Statistiques',
+    description: 'Analysez les performances avec des statistiques complètes.'
+  },
+  {
+    icon: 'mobile_friendly',
+    color: 'warning',
+    title: 'Interface mobile',
+    description: 'Accédez à toutes les fonctionnalités depuis votre smartphone.'
+  }
+];
+
+// Utility functions
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   return date.formatDate(new Date(dateStr), 'DD/MM/YYYY');
 };
 
-// Basculer entre le mode inscription et connexion
+const formatDateRange = (startDate, endDate) => {
+  const start = formatDate(startDate);
+  const end = formatDate(endDate);
+  if (start === end) return start;
+  return `${start} - ${end}`;
+};
+
+const scrollToTournaments = () => {
+  if (tournamentsSection.value) {
+    tournamentsSection.value.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+};
+
 const toggleAuthMode = (mode) => {
   isRegister.value = mode === 'register';
   showAuthModal.value = true;
 };
 
-// Filtrer les tournois par date
 const filterTournaments = () => {
   const { startDate, endDate } = dateFilter.value;
   filteredTournaments.value = tournaments.value.filter(tournament => {
@@ -261,18 +479,15 @@ const filterTournaments = () => {
   });
 };
 
-// Réinitialiser les filtres
 const resetFilters = () => {
   dateFilter.value.startDate = '';
   dateFilter.value.endDate = '';
   filteredTournaments.value = tournaments.value;
 };
 
-// Récupérer la liste des tournois publics
 const fetchTournaments = async () => {
   loading.value = true;
   try {
-    // Endpoint pour récupérer les tournois publics ou à venir
     const response = await api.get('/tournaments/public');
     tournaments.value = response.data;
     filteredTournaments.value = response.data;
@@ -285,146 +500,143 @@ const fetchTournaments = async () => {
   }
 };
 
-// Vérifier si l'utilisateur est connecté et le rediriger en fonction de son rôle
 const checkUserAndRedirect = () => {
-  // Récupérer les informations de l'utilisateur depuis le localStorage
   const token = localStorage.getItem('token');
   const userStr = localStorage.getItem('user');
   
   if (token && userStr) {
     try {
-      // Parser les données de l'utilisateur
       const user = JSON.parse(userStr);
-      
-      // Rediriger en fonction du rôle
       if (user.role === 'admin') {
-        // Si c'est un admin, rediriger vers la page d'administration
         router.push('/admin/users');
       } else {
-        // Si c'est un utilisateur normal, rediriger vers la liste des tournois
         router.push('/tournaments');
       }
     } catch (e) {
       console.error('Erreur lors de la récupération des données utilisateur:', e);
     }
   } else {
-    // Si l'utilisateur n'est pas connecté, charger normalement la page
     fetchTournaments();
   }
 };
 
-// Action après une authentification réussie
 const onAuthSuccess = (user) => {
   if (user.role === 'admin') {
-    // Rediriger l'admin vers la page d'administration
     router.push('/admin/users');
   } else {
-    // Rediriger l'utilisateur normal vers la liste des tournois
     router.push('/tournaments');
   }
 };
 
-// Exécuter la vérification et la redirection au montage du composant
 onMounted(() => {
   checkUserAndRedirect();
 });
 </script>
 
 <style lang="scss" scoped>
-.landing-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.header-section {
-  background: linear-gradient(135deg, #3B82F6 0%, #9333EA 100%);
-  color: white;
-  padding: 80px 24px;
-  
-  @media (max-width: 600px) {
-    padding: 60px 16px;
-  }
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-.logo-container {
-  margin-right: 60px;
-  
-  @media (max-width: 768px) {
-    margin-right: 0;
-    margin-bottom: 30px;
-  }
-}
-
-.logo {
-  width: 200px;
-  height: auto;
-  
-  @media (max-width: 768px) {
-    width: 150px;
-  }
-}
-
-.header-text {
-  flex: 1;
-}
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.tournament-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.hero-card {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+// Section separators like GitHub
+.section-separator {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  margin: 0;
+}
+
+// GitHub-style card
+.github-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+}
+
+// GitHub-style inputs
+.github-input {
+  :deep(.q-field__control) {
+    background: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    border-radius: 6px !important;
+    
+    &:hover {
+      border-color: #58a6ff !important;
+    }
+    
+    &:focus-within {
+      border-color: #58a6ff !important;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
+    }
+  }
+  
+  :deep(.q-field__native) {
+    color: #f0f6fc !important;
+    font-size: 14px !important;
+  }
+  
+  :deep(.q-field__label) {
+    color: #8b949e !important;
+    font-size: 14px !important;
+  }
+}
+
+// GitHub-style buttons
+.github-btn {
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  padding: 5px 16px !important;
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #58a6ff !important;
+    background: rgba(88, 166, 255, 0.1) !important;
   }
 }
 
-.tournament-image {
-  object-fit: cover;
-}
-
-.feature-section {
-  padding: 80px 24px;
+.github-btn-important {
+  border: 1px solid #da3633 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  color: #f85149 !important;
   
-  @media (max-width: 600px) {
-    padding: 60px 16px;
+  &:hover {
+    background: rgba(248, 81, 73, 0.1) !important;
+    border-color: #f85149 !important;
+    color: #ff7b72 !important;
   }
 }
 
-.feature-image {
-  max-width: 100%;
-  height: auto;
-  max-height: 400px;
-  object-fit: contain;
+.github-btn-icon {
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  width: 32px !important;
+  height: 32px !important;
+  
+  &:hover {
+    border-color: #58a6ff !important;
+    background: rgba(88, 166, 255, 0.1) !important;
+  }
 }
 
-.footer-section {
-  padding: 40px 24px;
-  margin-top: auto;
+// GitHub-style footer
+.github-footer {
+  border-top: 1px solid #30363d !important;
+  background: #0d1117 !important;
 }
 
-.auth-buttons {
-  margin-top: 30px;
-}
-
-.date-search {
-  margin-bottom: 30px;
+@media (max-width: 768px) {
+  .text-right {
+    text-align: center !important;
+  }
 }
 </style>

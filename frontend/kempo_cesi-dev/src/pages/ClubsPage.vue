@@ -1,65 +1,75 @@
 <template>
-  <q-page padding>
+  <q-page class="github-page" padding>
     <div class="container">
       <div class="row justify-between items-center q-mb-xl">
-        <h2 class="text-h3 text-center q-my-none col-12 col-sm-auto">Gestion des clubs</h2>
+        <h2 class="text-h3 q-my-none col-12 col-sm-auto text-white">Gestion des clubs</h2>
         
         <q-btn 
-          color="primary" 
+          color="negative"
+          text-color="white"
           icon="add" 
-          label="Créer un club" 
+          label="Créer un club"
+          outline
+          class="q-mt-sm q-mt-sm-none col-12 col-sm-auto github-btn-important"
           @click="openClubManager"
-          class="q-mt-sm q-mt-sm-none col-12 col-sm-auto"
         />
       </div>
       
-      <div v-if="loading" class="text-center">
+      <div v-if="loading" class="text-center q-py-xl">
         <q-spinner size="3em" color="primary" />
-        <p class="text-subtitle1 q-mt-md">Chargement des clubs...</p>
+        <p class="text-h6 q-mt-md text-grey-4">Chargement des clubs...</p>
       </div>
       
-      <div v-else-if="clubs.length === 0" class="text-center q-pa-xl">
-        <q-icon name="business" size="4em" color="grey-7" />
-        <p class="text-subtitle1 q-mt-md">Aucun club disponible pour le moment.</p>
-        <q-btn color="primary" label="Créer un club" icon="add" @click="openClubManager" class="q-mt-md" />
+      <div v-else-if="clubs.length === 0" class="empty-state text-center q-pa-xl">
+        <q-icon name="business" size="4em" color="grey-6" />
+        <p class="text-h6 q-mt-md text-grey-4">Aucun club disponible pour le moment.</p>
+        <q-btn 
+          color="negative"
+          text-color="white"
+          label="Créer un club" 
+          icon="add"
+          outline
+          class="q-mt-md github-btn-important"
+          @click="openClubManager" 
+        />
       </div>
       
       <div v-else class="row q-col-gutter-lg">
         <div v-for="club in clubs" :key="club._id" class="col-12 col-sm-6 col-md-4">
-          <q-card class="club-card" flat bordered>
+          <q-card class="github-club-card full-height">
             <q-card-section>
-              <div class="text-h6">{{ club.name }}</div>
-              <q-separator class="q-my-sm" />
-              <div class="text-body2 q-mt-sm">{{ club.description || 'Pas de description disponible' }}</div>
+              <div class="text-h6 text-white">{{ club.name }}</div>
+              <q-separator color="grey-8" class="q-my-sm" />
+              <div class="text-body2 q-mt-sm text-grey-4">{{ club.description || 'Pas de description disponible' }}</div>
             </q-card-section>
             
             <q-card-section>
-              <div class="row q-col-gutter-sm">
-                <div class="col-12">
-                  <q-icon name="location_on" size="xs" class="q-mr-xs" />
-                  {{ formatAddress(club.address) || 'Adresse non précisée' }}
+              <div class="club-details">
+                <div class="detail-item">
+                  <q-icon name="location_on" size="xs" color="grey-5" class="q-mr-xs" />
+                  <span class="text-grey-4">{{ formatAddress(club.address) || 'Adresse non précisée' }}</span>
                 </div>
-                <div class="col-12">
-                  <q-icon name="email" size="xs" class="q-mr-xs" />
-                  {{ club.contactEmail || 'Email non précisé' }}
+                <div class="detail-item">
+                  <q-icon name="email" size="xs" color="grey-5" class="q-mr-xs" />
+                  <span class="text-grey-4">{{ club.contactEmail || 'Email non précisé' }}</span>
                 </div>
-                <div class="col-12">
-                  <q-icon name="phone" size="xs" class="q-mr-xs" />
-                  {{ club.contactPhone || 'Téléphone non précisé' }}
+                <div class="detail-item">
+                  <q-icon name="phone" size="xs" color="grey-5" class="q-mr-xs" />
+                  <span class="text-grey-4">{{ club.contactPhone || 'Téléphone non précisé' }}</span>
                 </div>
               </div>
             </q-card-section>
             
-            <q-separator />
+            <q-separator color="grey-8" />
             
             <q-card-section>
-              <div class="text-subtitle2">Membres</div>
-              <div class="row items-center">
+              <div class="text-subtitle2 text-grey-3 q-mb-sm">Membres</div>
+              <div class="row items-center q-gutter-xs">
                 <q-chip 
-                  color="primary" 
+                  color="grey-7" 
                   text-color="white" 
                   icon="people" 
-                  class="q-mr-sm"
+                  size="sm"
                 >
                   {{ club.members ? club.members.length : 0 }} membre{{ club.members && club.members.length !== 1 ? 's' : '' }}
                 </q-chip>
@@ -68,7 +78,7 @@
                   color="secondary" 
                   text-color="white" 
                   icon="sports" 
-                  class="q-mr-sm"
+                  size="sm"
                   v-if="club.coaches && club.coaches.length"
                 >
                   {{ club.coaches.length }} entraîneur{{ club.coaches.length > 1 ? 's' : '' }}
@@ -76,10 +86,40 @@
               </div>
             </q-card-section>
             
-            <q-card-actions align="right">
-              <q-btn flat color="primary" icon="group" @click="viewClubDetails(club)" />
-              <q-btn flat color="secondary" icon="edit" @click="editClub(club)" />
-              <q-btn flat color="negative" icon="delete" @click="confirmDeleteClub(club)" />
+            <q-card-actions align="right" class="q-mt-auto">
+              <q-btn 
+                flat 
+                color="grey-4" 
+                icon="group"
+                round
+                dense
+                class="github-action-btn"
+                @click="viewClubDetails(club)"
+              >
+                <q-tooltip>Voir les détails</q-tooltip>
+              </q-btn>
+              <q-btn 
+                flat 
+                color="grey-4" 
+                icon="edit"
+                round
+                dense
+                class="github-action-btn"
+                @click="editClub(club)"
+              >
+                <q-tooltip>Modifier le club</q-tooltip>
+              </q-btn>
+              <q-btn 
+                flat 
+                color="red-4" 
+                icon="delete"
+                round
+                dense
+                class="github-action-btn"
+                @click="confirmDeleteClub(club)"
+              >
+                <q-tooltip>Supprimer le club</q-tooltip>
+              </q-btn>
             </q-card-actions>
           </q-card>
         </div>
@@ -94,26 +134,33 @@
     
     <!-- Dialogue de confirmation de suppression -->
     <q-dialog v-model="showDeleteConfirm" persistent>
-      <q-card style="min-width: 350px">
+      <q-card class="github-dialog" style="min-width: 350px">
         <q-card-section class="row items-center">
           <q-avatar icon="delete" color="negative" text-color="white" />
-          <span class="q-ml-sm text-h6">Confirmation de suppression</span>
+          <span class="q-ml-sm text-h6 text-white">Confirmation de suppression</span>
         </q-card-section>
 
         <q-card-section>
-          <p>Êtes-vous sûr de vouloir supprimer le club "<strong>{{ clubToDelete?.name }}</strong>" ?</p>
-          <p class="text-caption text-negative">
+          <p class="text-grey-4">Êtes-vous sûr de vouloir supprimer le club "<strong class="text-white">{{ clubToDelete?.name }}</strong>" ?</p>
+          <p class="text-caption text-red-4">
             <q-icon name="warning" />
             Cette action est irréversible. Les utilisateurs ne seront plus affiliés à ce club.
           </p>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Annuler" color="primary" v-close-popup />
+          <q-btn 
+            flat 
+            label="Annuler" 
+            color="grey-4" 
+            class="github-btn-flat"
+            v-close-popup 
+          />
           <q-btn 
             flat 
             label="Supprimer" 
-            color="negative" 
+            color="red-4" 
+            class="github-btn-danger"
             @click="deleteClub" 
             :loading="deleting"
           />
@@ -236,20 +283,154 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+// Page background
+.github-page {
+  background: #0d1117;
+  color: #f0f6fc;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.club-card {
-  height: 100%;
+// GitHub-style club cards
+.github-club-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    border-color: #58a6ff;
   }
+}
+
+// Club details
+.club-details {
+  .detail-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .q-icon {
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    
+    span {
+      word-break: break-word;
+      line-height: 1.4;
+    }
+  }
+}
+
+// GitHub-style buttons (from previous artifacts)
+.github-btn-important {
+  border: 1px solid #da3633 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  color: #f85149 !important;
+  
+  &:hover {
+    background: rgba(248, 81, 73, 0.1) !important;
+    border-color: #f85149 !important;
+    color: #ff7b72 !important;
+  }
+}
+
+.github-btn-flat {
+  color: #8b949e !important;
+  font-size: 14px !important;
+  
+  &:hover {
+    color: #f0f6fc !important;
+    background: rgba(177, 186, 196, 0.12) !important;
+  }
+}
+
+.github-btn-danger {
+  color: #f85149 !important;
+  
+  &:hover {
+    color: #ff7b72 !important;
+    background: rgba(248, 81, 73, 0.1) !important;
+  }
+}
+
+.github-action-btn {
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  
+  &:hover {
+    background: rgba(177, 186, 196, 0.12) !important;
+  }
+}
+
+// GitHub-style dialog
+.github-dialog {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+}
+
+// Empty state
+.empty-state {
+  padding: 4rem 1rem;
+  
+  .q-icon {
+    opacity: 0.6;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .row.justify-between {
+    flex-direction: column;
+    align-items: center !important;
+    text-align: center;
+    
+    h2 {
+      margin-bottom: 1rem;
+    }
+  }
+  
+  .github-club-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  .club-details {
+    .detail-item {
+      span {
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+// Card spacing adjustments
+.q-card-section {
+  &:last-child {
+    padding-bottom: 16px;
+  }
+}
+
+.q-card-actions {
+  padding: 8px 16px 16px 16px;
+}
+
+// Chips styling
+.q-chip {
+  font-size: 12px;
+  font-weight: 500;
 }
 </style>

@@ -1,9 +1,12 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated class="bg-primary text-white">
-      <q-toolbar>
-        <q-toolbar-title>
-          Nippon Kempo
+  <q-layout view="lHh Lpr lFf" class="github-layout">
+    <q-header class="github-header">
+      <q-toolbar class="github-toolbar">
+        <q-toolbar-title class="github-title">
+          <q-avatar size="28px" class="q-mr-sm">
+            <img src="/kempoimh.png" alt="Logo" />
+          </q-avatar>
+          Nippon Kempo 
         </q-toolbar-title>
         
         <!-- Bouton vers la page d'accueil - caché quand on est déjà sur l'indexPage -->
@@ -12,7 +15,7 @@
           round
           dense
           icon="home"
-          class="q-mr-sm"
+          class="q-mr-sm github-header-btn"
           aria-label="Page d'accueil"
           @click="goToIndexPage"
           v-if="!isOnIndexPage"
@@ -20,54 +23,40 @@
           <q-tooltip>Page d'accueil</q-tooltip>
         </q-btn>
         
-        <!-- Bouton de retour au menu principal
-        <q-btn
-          flat
-          round
-          dense
-          icon="dashboard"
-          class="q-mr-sm"
-          aria-label="Menu principal"
-          @click="goToMainMenu"
-          v-if="!isOnMainMenu"
-        >
-          <q-tooltip>Menu principal</q-tooltip>
-        </q-btn> -->
-        
         <!-- Bouton Administration pour les admins -->
         <q-btn-dropdown
           flat
           dense
           icon="admin_panel_settings"
-          class="q-mr-sm"
+          class="q-mr-sm github-header-btn"
           aria-label="Administration"
           v-if="isUserLoggedIn && isAdmin"
         >
-          <q-list>
-            <q-item clickable v-close-popup @click="router.push('/admin/users')">
+          <q-list class="github-dropdown">
+            <q-item clickable v-close-popup @click="router.push('/admin/users')" class="github-dropdown-item">
               <q-item-section avatar>
-                <q-icon name="people" />
+                <q-icon name="people" color="grey-4" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>Gestion des utilisateurs</q-item-label>
+                <q-item-label class="text-grey-3">Gestion des utilisateurs</q-item-label>
               </q-item-section>
             </q-item>
             
-            <q-item clickable v-close-popup @click="router.push('/admin/clubs')">
+            <q-item clickable v-close-popup @click="router.push('/admin/clubs')" class="github-dropdown-item">
               <q-item-section avatar>
-                <q-icon name="business" />
+                <q-icon name="business" color="grey-4" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>Gestion des clubs</q-item-label>
+                <q-item-label class="text-grey-3">Gestion des clubs</q-item-label>
               </q-item-section>
             </q-item>
             
-            <q-item clickable v-close-popup @click="router.push('/tournaments')">
+            <q-item clickable v-close-popup @click="router.push('/tournaments')" class="github-dropdown-item">
               <q-item-section avatar>
-                <q-icon name="emoji_events" />
+                <q-icon name="emoji_events" color="grey-4" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>Gestion des tournois</q-item-label>
+                <q-item-label class="text-grey-3">Gestion des tournois</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -79,7 +68,7 @@
           round
           dense
           icon="backup"
-          class="q-mr-sm"
+          class="q-mr-sm github-header-btn"
           aria-label="Sauvegarde"
           @click="showBackupManager = true"
           v-if="isUserLoggedIn && isAdmin"
@@ -94,6 +83,7 @@
           dense
           icon="account_circle"
           aria-label="Mon profil"
+          class="github-header-btn"
           @click="goToProfile"
           v-if="isUserLoggedIn"
         >
@@ -101,7 +91,7 @@
         </q-btn>
         
         <!-- Email de l'utilisateur connecté -->
-        <span class="q-mr-md user-email" v-if="isUserLoggedIn && userEmail">
+        <span class="q-mr-md github-user-email" v-if="isUserLoggedIn && userEmail">
           {{ userEmail }}
         </span>
         
@@ -112,6 +102,7 @@
           dense
           icon="logout"
           aria-label="Déconnexion"
+          class="github-header-btn"
           @click="logout"
           v-if="isUserLoggedIn"
         >
@@ -120,7 +111,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container>
+    <q-page-container class="github-page-container">
       <router-view />
     </q-page-container>
     
@@ -225,17 +216,122 @@ router.afterEach(() => {
 </script>
 
 <style lang="scss" scoped>
-.q-toolbar {
-  min-height: 56px;
+// GitHub Layout styling
+.github-layout {
+  background: #0d1117;
 }
 
-.user-email {
-  font-size: 0.9rem;
+.github-header {
+  background: #161b22 !important;
+  border-bottom: 1px solid #30363d;
+  box-shadow: none !important;
+}
+
+.github-toolbar {
+  min-height: 64px;
+  padding: 0 16px;
+  border: none;
+}
+
+.github-title {
+  color: #f0f6fc;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.github-header-btn {
+  color: #8b949e !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  
+  &:hover {
+    color: #f0f6fc !important;
+    background: rgba(177, 186, 196, 0.12) !important;
+  }
+  
+  // Style pour les icônes
+  .q-icon {
+    font-size: 16px;
+  }
+}
+
+.github-user-email {
+  font-size: 14px;
+  color: #8b949e;
   display: inline-block;
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
+  font-weight: 500;
+}
+
+.github-dropdown {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  margin-top: 8px;
+}
+
+.github-dropdown-item {
+  color: #f0f6fc !important;
+  padding: 8px 16px !important;
+  
+  &:hover {
+    background: rgba(177, 186, 196, 0.12) !important;
+  }
+  
+  .q-item-label {
+    font-size: 14px;
+    font-weight: 400;
+  }
+}
+
+.github-page-container {
+  background: #0d1117;
+  min-height: calc(100vh - 64px);
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .github-user-email {
+    display: none;
+  }
+  
+  .github-toolbar {
+    padding: 0 8px;
+  }
+  
+  .github-title {
+    font-size: 14px;
+  }
+}
+
+// Dark scrollbar pour être cohérent
+:deep(*) {
+  scrollbar-width: thin;
+  scrollbar-color: #30363d #0d1117;
+}
+
+:deep(*::-webkit-scrollbar) {
+  width: 8px;
+  height: 8px;
+}
+
+:deep(*::-webkit-scrollbar-track) {
+  background: #0d1117;
+}
+
+:deep(*::-webkit-scrollbar-thumb) {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+:deep(*::-webkit-scrollbar-thumb:hover) {
+  background: #484f58;
 }
 </style>

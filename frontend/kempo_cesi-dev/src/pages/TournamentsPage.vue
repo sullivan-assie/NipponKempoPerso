@@ -1,65 +1,91 @@
 <template>
-  <q-page padding>
+  <q-page class="github-page" padding>
     <div class="container">
       <div class="row justify-between items-center q-mb-xl">
-        <h2 class="text-h3 text-center q-my-none col-12 col-sm-auto">Tournois disponibles</h2>
+        <h2 class="text-h3 q-my-none col-12 col-sm-auto text-white">Tournois disponibles</h2>
         
         <!-- Bouton pour créer un tournoi (visible uniquement pour les administrateurs) -->
         <q-btn 
           v-if="isAdmin"
-          color="primary" 
+          color="negative" 
+          text-color="white"
           icon="add" 
           label="Créer un tournoi" 
+          outline
+          class="q-mt-sm q-mt-sm-none col-12 col-sm-auto github-btn-important"
           @click="openCreateTournamentDialog"
-          class="q-mt-sm q-mt-sm-none col-12 col-sm-auto"
         />
       </div>
       
       <!-- Filtres pour les tournois -->
-      <div class="q-mb-md">
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-6">
-            <q-input v-model="searchQuery" outlined dense clearable placeholder="Rechercher un tournoi">
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
+      <q-card flat class="github-card q-mb-xl">
+        <q-card-section>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-md-6">
+              <q-input 
+                v-model="searchQuery" 
+                outlined 
+                dense 
+                clearable 
+                placeholder="Rechercher un tournoi"
+                dark
+                color="grey-4"
+                label-color="grey-4"
+                class="github-input"
+              >
+                <template v-slot:append>
+                  <q-icon name="search" color="grey-4" />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-12 col-md-6" v-if="isUserLoggedIn">
+              <q-select
+                v-model="participationFilter"
+                :options="participationOptions"
+                outlined
+                dense
+                emit-value
+                map-options
+                option-label="label"
+                option-value="value"
+                label="Filtrer par participation"
+                dark
+                color="grey-4"
+                label-color="grey-4"
+                class="github-input"
+              />
+            </div>
           </div>
-          <div class="col-12 col-md-6" v-if="isUserLoggedIn">
-            <q-select
-              v-model="participationFilter"
-              :options="participationOptions"
-              outlined
-              dense
-              emit-value
-              map-options
-              option-label="label"
-              option-value="value"
-              label="Filtrer par participation"
-            />
-          </div>
-        </div>
-      </div>
+        </q-card-section>
+      </q-card>
       
-      <div v-if="loading" class="text-center">
+      <div v-if="loading" class="text-center q-py-xl">
         <q-spinner size="3em" color="primary" />
-        <p class="text-subtitle1 q-mt-md">Chargement des tournois...</p>
+        <p class="text-h6 q-mt-md text-grey-4">Chargement des tournois...</p>
       </div>
       
-      <div v-else-if="filteredTournaments.length === 0" class="text-center q-pa-xl">
-        <q-icon name="event_busy" size="4em" color="grey-7" />
-        <p class="text-subtitle1 q-mt-md">Aucun tournoi disponible pour le moment.</p>
+      <div v-else-if="filteredTournaments.length === 0" class="empty-state text-center q-pa-xl">
+        <q-icon name="event_busy" size="4em" color="grey-6" />
+        <p class="text-h6 q-mt-md text-grey-4">Aucun tournoi disponible pour le moment.</p>
         
         <!-- Message pour les administrateurs quand il n'y a pas de tournois -->
         <div v-if="isAdmin" class="q-mt-md">
-          <p>Commencez par créer votre premier tournoi.</p>
-          <q-btn color="primary" label="Créer un tournoi" icon="add" @click="openCreateTournamentDialog" />
+          <p class="text-grey-5">Commencez par créer votre premier tournoi.</p>
+          <q-btn 
+            color="negative" 
+            text-color="white"
+            label="Créer un tournoi" 
+            icon="add" 
+            outline
+            class="github-btn-important"
+            @click="openCreateTournamentDialog" 
+          />
         </div>
       </div>
       
       <div v-else class="row q-col-gutter-lg">
         <div v-for="tournament in filteredTournaments" :key="tournament._id" class="col-12 col-sm-6 col-md-4">
-          <q-card class="tournament-card" flat bordered>
+          <q-card class="github-tournament-card full-height">
             <!-- Bannière de participation si l'utilisateur est participant ou compétiteur -->
             <div v-if="isUserLoggedIn && getUserParticipationStatus(tournament)" class="participation-banner" :class="getUserParticipationStatus(tournament).class">
               <q-icon :name="getUserParticipationStatus(tournament).icon" size="sm" class="q-mr-xs" />
@@ -69,39 +95,49 @@
             <q-img 
               :src="tournament.imageUrl || '/Image1MainMenu.png'" 
               height="200px"
-              class="tournament-image"
+              class="tournament-image bg-grey-8"
             />
             <q-card-section>
-              <div class="text-h6">{{ tournament.name }}</div>
-              <div class="text-subtitle2">{{ formatDate(tournament.date) }}</div>
-              <div class="text-body2 q-mt-sm">{{ tournament.location }}</div>
+              <div class="text-h6 text-white">{{ tournament.name }}</div>
+              <div class="text-subtitle2 text-grey-4">{{ formatDate(tournament.date) }}</div>
+              <div class="text-body2 q-mt-sm text-grey-4">{{ tournament.location }}</div>
             </q-card-section>
             <q-card-section>
-              <div class="text-body2">
+              <div class="text-body2 text-grey-5">
                 {{ tournament.description || 'Pas de description disponible.' }}
               </div>
             </q-card-section>
             <q-card-actions align="between">
               <div>
-                <q-btn flat color="primary" label="Voir détails" @click="viewTournamentDetails(tournament._id)" />
+                <q-btn 
+                  color="grey-6"
+                  text-color="white"
+                  label="Voir détails" 
+                  outline
+                  class="github-btn"
+                  @click="viewTournamentDetails(tournament._id)" 
+                />
                 <!-- Bouton de suppression pour les admins -->
                 <q-btn 
                   v-if="isAdmin"
                   flat 
-                  color="negative" 
-                  icon="delete" 
+                  color="red-4" 
+                  icon="delete"
+                  round
+                  dense
+                  class="github-btn-danger q-ml-sm"
                   @click.stop="confirmDeleteTournament(tournament)"
                 />
               </div>
               
               <!-- Badge pour le nombre de catégories -->
-              <div>
-                <q-badge color="secondary" v-if="tournament.categories && tournament.categories.length" class="q-mr-sm">
+              <div class="flex q-gutter-xs">
+                <q-badge color="grey-7" text-color="white" v-if="tournament.categories && tournament.categories.length">
                   {{ tournament.categories.length }} catégorie{{ tournament.categories.length > 1 ? 's' : '' }}
                 </q-badge>
                 
                 <!-- Nouveau badge pour le nombre de compétiteurs -->
-                <q-badge color="orange" v-if="tournament.competitorsCount > 0">
+                <q-badge color="secondary" v-if="tournament.competitorsCount > 0">
                   {{ tournament.competitorsCount }} compétiteur{{ tournament.competitorsCount > 1 ? 's' : '' }}
                 </q-badge>
               </div>
@@ -110,24 +146,28 @@
             <!-- Actions supplémentaires pour les utilisateurs connectés -->
             <q-card-actions v-if="isUserLoggedIn" class="q-mt-none">
               <q-btn 
-                :color="isUserRegistered(tournament) ? 'negative' : 'positive'"
+                :color="isUserRegistered(tournament) ? 'red-5' : 'positive'"
+                text-color="white"
                 :icon="isUserRegistered(tournament) ? 'cancel' : 'how_to_reg'" 
                 :label="isUserRegistered(tournament) ? 'Annuler inscription' : 'S\'inscrire'"
-                class="full-width"
+                outline
+                class="full-width github-btn-action"
                 @click="toggleRegistration(tournament)"
                 :loading="processingRegistration[tournament._id]"
               />
             </q-card-actions>
             
             <!-- Message pour les utilisateurs non connectés -->
-            <q-card-section v-else class="text-center q-pa-sm text-caption">
-              <q-icon name="info" color="grey-7" size="xs" class="q-mr-xs" />
-              Connectez-vous pour vous inscrire à ce tournoi
+            <q-card-section v-else class="text-center q-pa-sm">
+              <div class="text-caption text-grey-5">
+                <q-icon name="info" color="grey-6" size="xs" class="q-mr-xs" />
+                Connectez-vous pour vous inscrire à ce tournoi
+              </div>
             </q-card-section>
             
             <!-- Badge pour les admins montrant le nombre d'inscrits -->
             <q-card-section v-if="isAdmin" class="q-pt-none">
-              <q-badge color="info" class="cursor-pointer" @click="viewParticipants(tournament._id)">
+              <q-badge color="info" class="cursor-pointer github-badge-clickable" @click="viewParticipants(tournament._id)">
                 <q-icon name="people" size="xs" class="q-mr-xs" />
                 {{ getTournamentParticipantsCount(tournament) }} inscrit{{ getTournamentParticipantsCount(tournament) !== 1 ? 's' : '' }}
               </q-badge>
@@ -138,9 +178,12 @@
       
       <div class="text-center q-mt-xl" v-if="tournaments.length > 0">
         <q-btn 
-          color="primary" 
+          color="grey-6"
+          text-color="white"
           icon="refresh" 
           label="Rafraîchir" 
+          outline
+          class="github-btn"
           @click="fetchTournaments" 
           :loading="loading"
         />
@@ -155,26 +198,34 @@
     
     <!-- Modal pour la confirmation de suppression de tournoi -->
     <q-dialog v-model="showDeleteDialog" persistent>
-      <q-card style="min-width: 350px">
+      <q-card class="github-dialog">
         <q-card-section class="row items-center">
           <q-avatar icon="delete" color="negative" text-color="white" />
-          <span class="q-ml-sm text-h6">Confirmation de suppression</span>
+          <span class="q-ml-sm text-h6 text-white">Confirmation de suppression</span>
         </q-card-section>
 
         <q-card-section>
-          <p>Êtes-vous sûr de vouloir supprimer le tournoi "<strong>{{ tournamentToDelete?.name }}</strong>" ?</p>
-          <p class="text-caption text-negative">
+          <p class="text-grey-4">Êtes-vous sûr de vouloir supprimer le tournoi "<strong class="text-white">{{ tournamentToDelete?.name }}</strong>" ?</p>
+          <p class="text-caption text-red-4">
             <q-icon name="warning" />
             Cette action est irréversible. Toutes les données associées à ce tournoi seront définitivement perdues.
           </p>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Annuler" color="primary" v-close-popup @click="cancelDelete" />
+          <q-btn 
+            flat 
+            label="Annuler" 
+            color="grey-4" 
+            class="github-btn-flat"
+            v-close-popup 
+            @click="cancelDelete" 
+          />
           <q-btn 
             flat 
             label="Supprimer" 
-            color="negative" 
+            color="red-4" 
+            class="github-btn-danger"
             @click="deleteTournament" 
             :loading="deletingTournament"
           />
@@ -184,38 +235,46 @@
     
     <!-- Modal pour afficher les participants (admin seulement) -->
     <q-dialog v-model="showParticipantsDialog" persistent>
-      <q-card style="min-width: 350px; max-width: 600px">
+      <q-card class="github-dialog" style="min-width: 350px; max-width: 600px">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Participants au tournoi</div>
+          <div class="text-h6 text-white">Participants au tournoi</div>
           <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn 
+            icon="close" 
+            flat 
+            round 
+            dense 
+            color="grey-4"
+            class="github-btn-flat"
+            v-close-popup 
+          />
         </q-card-section>
         
         <q-card-section v-if="loadingParticipants">
           <div class="text-center">
             <q-spinner color="primary" size="3em" />
-            <div class="q-mt-sm">Chargement des participants...</div>
+            <div class="q-mt-sm text-grey-4">Chargement des participants...</div>
           </div>
         </q-card-section>
         
         <q-card-section v-else-if="currentTournamentParticipants.length === 0">
           <div class="text-center">
-            <q-icon name="people_outline" size="3em" color="grey-7" />
-            <div class="q-mt-sm">Aucun participant inscrit pour le moment.</div>
+            <q-icon name="people_outline" size="3em" color="grey-6" />
+            <div class="q-mt-sm text-grey-4">Aucun participant inscrit pour le moment.</div>
           </div>
         </q-card-section>
         
         <q-card-section v-else>
-          <q-list bordered separator>
-            <q-item v-for="participant in currentTournamentParticipants" :key="participant.user._id">
+          <q-list class="github-list">
+            <q-item v-for="participant in currentTournamentParticipants" :key="participant.user._id" class="github-list-item">
               <q-item-section avatar>
                 <q-avatar color="primary" text-color="white">
                   {{ participant.user.name.charAt(0) }}
                 </q-avatar>
               </q-item-section>
               <q-item-section>
-                <q-item-label>{{ participant.user.name }}</q-item-label>
-                <q-item-label caption>{{ participant.user.email }}</q-item-label>
+                <q-item-label class="text-grey-3">{{ participant.user.name }}</q-item-label>
+                <q-item-label caption class="text-grey-5">{{ participant.user.email }}</q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-badge :color="participant.status === 'confirmed' ? 'positive' : 'warning'">
@@ -227,7 +286,13 @@
         </q-card-section>
         
         <q-card-actions align="right">
-          <q-btn flat color="primary" label="Fermer" v-close-popup />
+          <q-btn 
+            flat 
+            color="grey-4" 
+            label="Fermer" 
+            class="github-btn-flat"
+            v-close-popup 
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -619,47 +684,197 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+// Page background
+.github-page {
+  background: #0d1117;
+  color: #f0f6fc;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.tournament-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+// GitHub-style card
+.github-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+}
+
+// Tournament cards
+.github-tournament-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
   position: relative;
   overflow: hidden;
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    border-color: #58a6ff;
   }
 }
 
-.tournament-image {
-  object-fit: cover;
+// GitHub-style inputs (from landing page)
+.github-input {
+  :deep(.q-field__control) {
+    background: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    border-radius: 6px !important;
+    
+    &:hover {
+      border-color: #58a6ff !important;
+    }
+    
+    &:focus-within {
+      border-color: #58a6ff !important;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
+    }
+  }
+  
+  :deep(.q-field__native) {
+    color: #f0f6fc !important;
+    font-size: 14px !important;
+  }
+  
+  :deep(.q-field__label) {
+    color: #8b949e !important;
+    font-size: 14px !important;
+  }
 }
 
+// GitHub-style buttons
+.github-btn {
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  
+  &:hover {
+    border-color: #58a6ff !important;
+    background: rgba(88, 166, 255, 0.1) !important;
+  }
+}
+
+.github-btn-important {
+  border: 1px solid #da3633 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  color: #f85149 !important;
+  
+  &:hover {
+    background: rgba(248, 81, 73, 0.1) !important;
+    border-color: #f85149 !important;
+    color: #ff7b72 !important;
+  }
+}
+
+.github-btn-flat {
+  color: #8b949e !important;
+  font-size: 14px !important;
+  
+  &:hover {
+    color: #f0f6fc !important;
+    background: rgba(177, 186, 196, 0.12) !important;
+  }
+}
+
+.github-btn-danger {
+  color: #f85149 !important;
+  
+  &:hover {
+    color: #ff7b72 !important;
+    background: rgba(248, 81, 73, 0.1) !important;
+  }
+}
+
+.github-btn-action {
+  border: 1px solid currentColor !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+.github-badge-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(88, 166, 255, 0.2) !important;
+  }
+}
+
+// Dialogs
+.github-dialog {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+}
+
+// Lists
+.github-list {
+  background: transparent !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+}
+
+.github-list-item {
+  border-bottom: 1px solid #30363d;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background: rgba(177, 186, 196, 0.06) !important;
+  }
+}
+
+// Participation banners
 .participation-banner {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 5px;
+  padding: 8px;
   color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 600;
   text-align: center;
   z-index: 1;
   
   &.competitor-status {
-    background-color: rgba(85, 110, 230, 0.85);
+    background: linear-gradient(90deg, #1976d2, #1565c0);
   }
   
   &.participant-status {
-    background-color: rgba(38, 166, 154, 0.85);
+    background: linear-gradient(90deg, #26a69a, #00695c);
+  }
+}
+
+// Empty state
+.empty-state {
+  padding: 4rem 1rem;
+  
+  .q-icon {
+    opacity: 0.6;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .row.justify-between {
+    flex-direction: column;
+    align-items: center !important;
+    text-align: center;
   }
 }
 </style>

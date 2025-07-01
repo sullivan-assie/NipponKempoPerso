@@ -1,9 +1,11 @@
 <template>
   <q-dialog :model-value="isOpen" @update:model-value="closeModal" persistent>
-    <q-card flat bordered class="auth-card q-pa-md">
+    <q-card flat class="github-auth-card q-pa-lg">
       <q-card-section class="text-center q-pb-none">
-        <div class="text-h5 q-mb-md">{{ isRegister ? 'Inscription' : 'Connexion' }}</div>
-        <!-- <img src="~/public/kempoimh.png" style="width: 150px; height: auto;" /> -->
+        <div class="text-h5 q-mb-md text-white">{{ isRegister ? 'Inscription' : 'Connexion' }}</div>
+        <q-avatar size="60px" class="q-mb-md">
+          <img src="/kempoimh.png" alt="Logo" />
+        </q-avatar>
       </q-card-section>
 
       <q-card-section>
@@ -12,18 +14,26 @@
             <div class="row q-col-gutter-md">
               <div class="col-12 col-sm-6">
                 <q-input
-                  filled
+                  outlined
                   v-model="form.firstName"
                   label="Prénom"
+                  dark
+                  color="grey-4"
+                  label-color="grey-4"
+                  class="github-input"
                   lazy-rules
                   :rules="[val => val && val.length > 0 || 'Le prénom est requis']"
                 />
               </div>
               <div class="col-12 col-sm-6">
                 <q-input
-                  filled
+                  outlined
                   v-model="form.lastName"
                   label="Nom"
+                  dark
+                  color="grey-4"
+                  label-color="grey-4"
+                  class="github-input"
                   lazy-rules
                   :rules="[val => val && val.length > 0 || 'Le nom est requis']"
                 />
@@ -32,10 +42,14 @@
             
             <!-- Ajout du champ pour le numéro de combattant -->
             <q-input
-              filled
+              outlined
               v-model="form.fighterNumber"
               label="Numéro de combattant"
               hint="Exemple: NC12345"
+              dark
+              color="grey-4"
+              label-color="grey-4"
+              class="github-input"
               lazy-rules
               :rules="[
                 val => val && val.length > 0 || 'Le numéro de combattant est requis',
@@ -45,18 +59,26 @@
             
             <!-- Ajout du champ pour le nom du club -->
             <q-input
-              filled
+              outlined
               v-model="form.clubName"
               label="Nom du club"
               hint="Indiquez le nom de votre club (optionnel)"
+              dark
+              color="grey-4"
+              label-color="grey-4"
+              class="github-input"
             />
           </template>
 
           <q-input
-            filled
+            outlined
             v-model="form.email"
             label="Email"
             type="email"
+            dark
+            color="grey-4"
+            label-color="grey-4"
+            class="github-input"
             lazy-rules
             :rules="[
               val => val && val.length > 0 || 'L\'email est requis',
@@ -65,10 +87,14 @@
           />
 
           <q-input
-            filled
+            outlined
             v-model="form.password"
             label="Mot de passe"
             :type="isPwd ? 'password' : 'text'"
+            dark
+            color="grey-4"
+            label-color="grey-4"
+            class="github-input"
             lazy-rules
             :rules="[
               val => val && val.length > 5 || 'Le mot de passe doit contenir au moins 6 caractères'
@@ -77,6 +103,7 @@
             <template v-slot:append>
               <q-icon
                 :name="isPwd ? 'visibility_off' : 'visibility'"
+                color="grey-4"
                 class="cursor-pointer"
                 @click="isPwd = !isPwd"
               />
@@ -89,18 +116,23 @@
               flat 
               dense 
               no-caps 
-              color="blue-7" 
-              label="Mot de passe oublié ?" 
+              color="primary" 
+              label="Mot de passe oublié ?"
+              class="github-link-btn"
               @click="goToForgotPassword"
             />
           </div>
 
           <template v-if="isRegister">
             <q-input
-              filled
+              outlined
               v-model="form.passwordConfirm"
               label="Confirmer le mot de passe"
               :type="isPwd ? 'password' : 'text'"
+              dark
+              color="grey-4"
+              label-color="grey-4"
+              class="github-input"
               lazy-rules
               :rules="[
                 val => val && val === form.password || 'Les mots de passe ne correspondent pas'
@@ -109,6 +141,7 @@
               <template v-slot:append>
                 <q-icon
                   :name="isPwd ? 'visibility_off' : 'visibility'"
+                  color="grey-4"
                   class="cursor-pointer"
                   @click="isPwd = !isPwd"
                 />
@@ -118,18 +151,20 @@
             <q-checkbox
               v-model="form.RGPDConsent"
               label="J'accepte les conditions d'utilisation et la politique de confidentialité"
+              color="primary"
+              class="github-checkbox text-grey-4"
               :rules="[val => val || 'Vous devez accepter les conditions d\'utilisation']"
             />
           </template>
 
-          <div class="text-center q-mt-md">
+          <div class="text-center q-mt-lg">
             <q-btn
               :label="isRegister ? 'S\'inscrire' : 'Se connecter'"
               type="submit"
-              color="primary"
+              color="positive"
               :loading="loading"
-              rounded
-              class="full-width"
+              unelevated
+              class="full-width github-btn-primary"
             />
           </div>
         </q-form>
@@ -140,13 +175,19 @@
           flat
           :label="isRegister ? 'Vous avez déjà un compte ? Connexion' : 'Pas de compte ? Inscription'"
           @click="toggleRegister"
-          class="full-width q-mt-sm"
-          color="secondary"
+          class="full-width q-mt-sm github-toggle-btn"
+          color="grey-4"
         />
       </q-card-actions>
       
       <q-card-actions align="center" class="q-pt-md">
-        <q-btn flat label="Fermer" @click="closeModal" color="grey-7" />
+        <q-btn 
+          flat 
+          label="Fermer" 
+          @click="closeModal" 
+          color="grey-4"
+          class="github-btn-flat"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -296,17 +337,181 @@ const onSubmit = async () => {
 </script>
 
 <style lang="scss" scoped>
-.auth-card {
+// GitHub auth card
+.github-auth-card {
   width: 100%;
   max-width: 450px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
+// GitHub-style inputs (from previous artifacts)
+.github-input {
+  :deep(.q-field__control) {
+    background: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    border-radius: 6px !important;
+    
+    &:hover {
+      border-color: #58a6ff !important;
+    }
+    
+    &:focus-within {
+      border-color: #58a6ff !important;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
+    }
+  }
+  
+  :deep(.q-field__native) {
+    color: #f0f6fc !important;
+    font-size: 14px !important;
+  }
+  
+  :deep(.q-field__label) {
+    color: #8b949e !important;
+    font-size: 14px !important;
+  }
+  
+  :deep(.q-field__bottom) {
+    color: #8b949e !important;
+    font-size: 12px !important;
+  }
+  
+  :deep(.q-field__append) {
+    .q-icon {
+      color: #8b949e !important;
+    }
+  }
+  
+  // Error states
+  :deep(.q-field--error) {
+    .q-field__control {
+      border-color: #f85149 !important;
+    }
+    
+    .q-field__bottom {
+      color: #f85149 !important;
+    }
+  }
+}
+
+// GitHub-style checkbox
+.github-checkbox {
+  :deep(.q-checkbox__bg) {
+    border: 2px solid #30363d !important;
+    background: transparent !important;
+    border-radius: 3px !important;
+  }
+  
+  :deep(.q-checkbox__bg:hover) {
+    border-color: #58a6ff !important;
+  }
+  
+  :deep(.q-checkbox__bg .q-checkbox__svg) {
+    color: #f0f6fc !important;
+  }
+  
+  :deep(.q-checkbox__inner--active .q-checkbox__bg) {
+    background: #1976d2 !important;
+    border-color: #1976d2 !important;
+  }
+  
+  :deep(.q-checkbox__inner--truthy .q-checkbox__bg) {
+    background: #1976d2 !important;
+    border-color: #1976d2 !important;
+  }
+  
+  :deep(.q-checkbox__label) {
+    color: #8b949e !important;
+    font-size: 14px !important;
+  }
+}
+
+// GitHub-style buttons
+.github-btn-primary {
+  background: #238636 !important;
+  border: 1px solid #238636 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: white !important;
+  height: 48px !important;
+  
+  &:hover {
+    background: #2ea043 !important;
+    border-color: #2ea043 !important;
+  }
+  
+  &:disabled {
+    background: #21262d !important;
+    border-color: #30363d !important;
+    color: #8b949e !important;
+  }
+}
+
+.github-btn-flat {
+  color: #8b949e !important;
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  
+  &:hover {
+    color: #f0f6fc !important;
+    background: rgba(177, 186, 196, 0.12) !important;
+  }
+}
+
+.github-toggle-btn {
+  color: #8b949e !important;
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  
+  &:hover {
+    color: #58a6ff !important;
+    background: rgba(88, 166, 255, 0.1) !important;
+  }
+}
+
+.github-link-btn {
+  color: #58a6ff !important;
+  font-size: 14px !important;
+  
+  &:hover {
+    color: #79c0ff !important;
+    text-decoration: underline;
+  }
+}
+
+// Avatar styling
+.q-avatar {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  
+  img {
+    border-radius: 50%;
+  }
+}
+
+// Responsive
 @media (max-width: 599px) {
-  .auth-card {
+  .github-auth-card {
     max-width: 90vw;
+    margin: 16px;
+  }
+}
+
+// Loading state
+:deep(.q-btn--loading) {
+  .q-btn__content {
+    opacity: 0.6;
+  }
+}
+
+// Form spacing
+.q-form {
+  .q-gutter-md > * {
+    margin-bottom: 16px;
   }
 }
 </style>

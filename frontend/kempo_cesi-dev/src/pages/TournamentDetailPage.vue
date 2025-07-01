@@ -1,210 +1,248 @@
 <template>
-  <q-page padding>
+  <q-page class="github-page" padding>
     <div class="container" v-if="!loading && tournament">
       <div class="q-pb-md">
         <q-btn
           icon="arrow_back"
           label="Retour aux tournois"
-          color="secondary"
+          color="grey-4"
           flat
+          class="github-btn-flat"
           to="/tournaments"
         />
       </div>
       
       <div class="tournament-header">
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-4">
-            <q-img
-              :src="tournament.imageUrl || '/Image1MainMenu.png'"
-              class="rounded-borders full-height"
-              style="min-height: 250px"
-              fit="cover"
-            />
-          </div>
-          
-          <div class="col-12 col-md-8">
-            <div class="row items-center justify-between">
-              <h1 class="text-h3 q-mb-md">{{ tournament.name }}</h1>
-              <div>
-                <q-btn
-                  v-if="isAdmin"
-                  icon="edit"
-                  color="primary"
-                  label="Modifier"
-                  @click="showEditDialog = true"
-                  class="q-mb-md q-mr-sm"
-                />
-                <q-btn
-                  v-if="isAdmin"
-                  icon="delete"
-                  color="negative"
-                  label="Supprimer"
-                  @click="showDeleteDialog = true"
-                  class="q-mb-md"
-                />
-              </div>
-            </div>
-            <div class="text-body1 q-mb-md tournament-description">
-              {{ tournament.description || 'Pas de description pour ce tournoi.' }}
+        <q-card flat class="github-card q-pa-lg">
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-md-4">
+              <q-img
+                :src="tournament.imageUrl || '/Image1MainMenu.png'"
+                class="rounded-borders full-height bg-grey-8"
+                style="min-height: 250px"
+                fit="cover"
+              />
             </div>
             
-            <div class="tournament-details">
-              <div class="detail-item">
-                <q-icon name="event" size="sm" />
-                <span>{{ formatDate(tournament.startDate) }} - {{ formatDate(tournament.endDate) }}</span>
+            <div class="col-12 col-md-8">
+              <div class="row items-center justify-between q-mb-md">
+                <h1 class="text-h3 text-white">{{ tournament.name }}</h1>
+                <div class="q-gutter-sm">
+                  <q-btn
+                    v-if="isAdmin"
+                    icon="edit"
+                    color="grey-4"
+                    label="Modifier"
+                    flat
+                    class="github-btn-flat"
+                    @click="showEditDialog = true"
+                  />
+                  <q-btn
+                    v-if="isAdmin"
+                    icon="delete"
+                    color="red-4"
+                    label="Supprimer"
+                    flat
+                    class="github-btn-danger"
+                    @click="showDeleteDialog = true"
+                  />
+                </div>
               </div>
               
-              <div class="detail-item">
-                <q-icon name="location_on" size="sm" />
-                <span>{{ tournament.location || 'Lieu non précisé' }}</span>
+              <div class="text-body1 q-mb-md tournament-description text-grey-4">
+                {{ tournament.description || 'Pas de description pour ce tournoi.' }}
               </div>
               
-              <div class="detail-item">
-                <q-icon name="people" size="sm" />
-                <span>{{ tournament.status || 'Statut inconnu' }}</span>
+              <div class="tournament-details">
+                <div class="detail-item">
+                  <q-icon name="event" size="sm" color="grey-5" />
+                  <span class="text-grey-4">{{ formatDate(tournament.startDate) }} - {{ formatDate(tournament.endDate) }}</span>
+                </div>
+                
+                <div class="detail-item">
+                  <q-icon name="location_on" size="sm" color="grey-5" />
+                  <span class="text-grey-4">{{ tournament.location || 'Lieu non précisé' }}</span>
+                </div>
+                
+                <div class="detail-item">
+                  <q-icon name="people" size="sm" color="grey-5" />
+                  <span class="text-grey-4">{{ tournament.status || 'Statut inconnu' }}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </q-card>
       </div>
       
-      <q-separator class="q-my-md" />
+      <!-- Section Separator -->
+      <div class="section-separator"></div>
       
       <!-- Catégories du tournoi -->
       <div class="tournament-categories q-mt-xl">
-        <div class="row items-center justify-between">
-          <h2 class="text-h4">Catégories</h2>
-          <div v-if="isAdmin">
-            <q-btn 
-              color="primary" 
-              label="Gérer les catégories" 
-              icon="settings" 
-              @click="showCategoryManagerDialog = true"
-            />
-          </div>
-        </div>
-        
-        <div v-if="!tournament.categories || tournament.categories.length === 0" class="text-center q-pa-md">
-          <q-icon name="category" size="3em" color="grey-7" />
-          <p class="text-subtitle1">Aucune catégorie n'a encore été définie pour ce tournoi.</p>
-        </div>
-        
-        <div v-else class="row q-col-gutter-md q-mt-md">
-          <div v-for="category in tournament.categories" :key="category._id" class="col-12 col-sm-6 col-md-4">
-            <q-card class="category-card">
-              <q-card-section>
-                <div class="text-h6">{{ category.name }}</div>
-              </q-card-section>
-            </q-card>
-          </div>
-        </div>
+        <q-card flat class="github-card">
+          <q-card-section>
+            <div class="row items-center justify-between q-mb-md">
+              <h2 class="text-h4 text-white">Catégories</h2>
+              <div v-if="isAdmin">
+                <q-btn 
+                  color="grey-4" 
+                  label="Gérer les catégories" 
+                  icon="settings"
+                  flat
+                  class="github-btn-flat"
+                  @click="showCategoryManagerDialog = true"
+                />
+              </div>
+            </div>
+            
+            <div v-if="!tournament.categories || tournament.categories.length === 0" class="text-center q-pa-xl">
+              <q-icon name="category" size="3em" color="grey-6" />
+              <p class="text-h6 q-mt-md text-grey-4">Aucune catégorie n'a encore été définie pour ce tournoi.</p>
+            </div>
+            
+            <div v-else class="row q-col-gutter-md">
+              <div v-for="category in tournament.categories" :key="category._id" class="col-12 col-sm-6 col-md-4">
+                <q-card flat class="github-category-card">
+                  <q-card-section>
+                    <div class="text-h6 text-white">{{ category.name }}</div>
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
       </div>
       
-      <q-separator class="q-my-xl" />
+      <!-- Section Separator -->
+      <div class="section-separator"></div>
       
       <!-- Participants du tournoi -->
       <div class="tournament-competitors q-mt-xl" v-if="showCategoryCompetitors">
-        <div class="category-header q-mb-md">
-          <h2 class="text-h4">Participants - {{ selectedCategory ? selectedCategory.name : '' }}</h2>
-          <q-btn flat icon="close" @click="closeCategoryCompetitors" />
-        </div>
-        
-        <div v-if="!competitors || competitors.length === 0" class="text-center q-pa-md">
-          <q-icon name="person_off" size="3em" color="grey-7" />
-          <p class="text-subtitle1">Aucun participant n'est inscrit dans cette catégorie.</p>
-        </div>
-        
-        <div v-else>
-          <q-table
-            :rows="competitors"
-            :columns="competitorColumns"
-            row-key="_id"
-            flat
-            bordered
-          />
-        </div>
+        <q-card flat class="github-card">
+          <q-card-section>
+            <div class="category-header q-mb-md">
+              <h2 class="text-h4 text-white">Participants - {{ selectedCategory ? selectedCategory.name : '' }}</h2>
+              <q-btn 
+                flat 
+                icon="close" 
+                color="grey-4"
+                class="github-btn-flat"
+                @click="closeCategoryCompetitors" 
+              />
+            </div>
+            
+            <div v-if="!competitors || competitors.length === 0" class="text-center q-pa-xl">
+              <q-icon name="person_off" size="3em" color="grey-6" />
+              <p class="text-h6 q-mt-md text-grey-4">Aucun participant n'est inscrit dans cette catégorie.</p>
+            </div>
+            
+            <div v-else>
+              <q-table
+                :rows="competitors"
+                :columns="competitorColumns"
+                row-key="_id"
+                flat
+                class="github-table"
+                dark
+              />
+            </div>
+          </q-card-section>
+        </q-card>
       </div>
       
       <!-- Liste des utilisateurs inscrits au tournoi (admin uniquement) -->
       <div class="tournament-users q-mt-xl" v-if="isAdmin">
-        <div class="row items-center justify-between">
-          <h2 class="text-h4">Utilisateurs inscrits</h2>
-          <div>
-            <q-btn 
-              color="primary" 
-              label="Convertir en compétiteurs" 
-              icon="person_add" 
-              @click="showAddUsersDialog = true"
-            />
-          </div>
-        </div>
+        <q-card flat class="github-card">
+          <q-card-section>
+            <div class="row items-center justify-between q-mb-md">
+              <h2 class="text-h4 text-white">Utilisateurs inscrits</h2>
+              <div>
+                <q-btn 
+                  color="grey-4" 
+                  label="Convertir en compétiteurs" 
+                  icon="person_add"
+                  flat
+                  class="github-btn-flat"
+                  @click="showAddUsersDialog = true"
+                />
+              </div>
+            </div>
 
-        <q-table
-          :rows="tournamentParticipants"
-          :columns="participantColumns"
-          row-key="_id"
-          flat
-          bordered
-          class="q-mt-md"
-        />
+            <q-table
+              :rows="tournamentParticipants"
+              :columns="participantColumns"
+              row-key="_id"
+              flat
+              class="github-table"
+              dark
+            />
+          </q-card-section>
+        </q-card>
       </div>
 
       <!-- Section des compétiteurs du tournoi -->
       <div class="tournament-competitors-section q-mt-xl">
-        <div class="row items-center justify-between">
-          <h2 class="text-h4">Compétiteurs du tournoi</h2>
-          <div>
-            <q-btn 
-              v-if="isAdmin"
-              color="secondary" 
-              label="Gérer les compétiteurs" 
-              icon="sports_kabaddi" 
-              @click="showAddCompetitorsDialog = true"
-            />
-          </div>
-        </div>
-        
-        <div v-if="!tournament.competitors || tournament.competitors.length === 0" class="text-center q-pa-md">
-          <q-icon name="sports_martial_arts" size="3em" color="grey-7" />
-          <p class="text-subtitle1">Aucun compétiteur n'est inscrit à ce tournoi.</p>
-        </div>
-        
-        <div v-else>
-          <q-table
-            :rows="tournament.competitors"
-            :columns="competitorColumns"
-            row-key="_id"
-            flat
-            bordered
-            class="q-mt-md"
-          >
-            <template v-slot:body-cell-nationality="props">
-              <q-td :props="props">
-                <div class="row items-center">
-                  <country-flag :country="getCountryCode(props.value)" size="small" class="q-mr-sm" />
-                  {{ props.value }}
-                </div>
-              </q-td>
-            </template>
-          </q-table>
-        </div>
+        <q-card flat class="github-card">
+          <q-card-section>
+            <div class="row items-center justify-between q-mb-md">
+              <h2 class="text-h4 text-white">Compétiteurs du tournoi</h2>
+              <div>
+                <q-btn 
+                  v-if="isAdmin"
+                  color="grey-4" 
+                  label="Gérer les compétiteurs" 
+                  icon="sports_kabaddi"
+                  flat
+                  class="github-btn-flat"
+                  @click="showAddCompetitorsDialog = true"
+                />
+              </div>
+            </div>
+            
+            <div v-if="!tournament.competitors || tournament.competitors.length === 0" class="text-center q-pa-xl">
+              <q-icon name="sports_martial_arts" size="3em" color="grey-6" />
+              <p class="text-h6 q-mt-md text-grey-4">Aucun compétiteur n'est inscrit à ce tournoi.</p>
+            </div>
+            
+            <div v-else>
+              <q-table
+                :rows="tournament.competitors"
+                :columns="competitorColumns"
+                row-key="_id"
+                flat
+                class="github-table"
+                dark
+              >
+                <template v-slot:body-cell-nationality="props">
+                  <q-td :props="props">
+                    <div class="row items-center">
+                      <country-flag :country="getCountryCode(props.value)" size="small" class="q-mr-sm" />
+                      <span class="text-grey-3">{{ props.value }}</span>
+                    </div>
+                  </q-td>
+                </template>
+              </q-table>
+            </div>
+          </q-card-section>
+        </q-card>
       </div>
     </div>
     
     <div v-else-if="loading" class="full-center">
       <q-spinner size="3em" color="primary" />
-      <p class="text-subtitle1 q-mt-md">Chargement des détails du tournoi...</p>
+      <p class="text-h6 q-mt-md text-grey-4">Chargement des détails du tournoi...</p>
     </div>
     
     <div v-else class="full-center">
-      <q-icon name="sports_mma" size="4em" color="negative" />
-      <h2 class="text-h5 q-mt-md q-mb-none">Tournoi introuvable</h2>
-      <p class="q-mt-sm">Le tournoi demandé n'existe pas ou a été supprimé.</p>
+      <q-icon name="sports_mma" size="4em" color="red-4" />
+      <h2 class="text-h5 q-mt-md q-mb-none text-white">Tournoi introuvable</h2>
+      <p class="q-mt-sm text-grey-4">Le tournoi demandé n'existe pas ou a été supprimé.</p>
       <q-btn
-        color="primary"
+        color="grey-4"
         label="Retour aux tournois"
+        flat
+        class="github-btn-flat q-mt-md"
         to="/tournaments"
-        class="q-mt-md"
       />
     </div>
 
@@ -240,26 +278,34 @@
     
     <!-- Dialogue pour confirmer la suppression du tournoi -->
     <q-dialog v-model="showDeleteDialog" persistent>
-      <q-card style="min-width: 350px">
+      <q-card class="github-dialog">
         <q-card-section class="row items-center">
           <q-avatar icon="delete" color="negative" text-color="white" />
-          <span class="q-ml-sm text-h6">Confirmation de suppression</span>
+          <span class="q-ml-sm text-h6 text-white">Confirmation de suppression</span>
         </q-card-section>
 
         <q-card-section>
-          <p>Êtes-vous sûr de vouloir supprimer le tournoi "<strong>{{ tournament?.name }}</strong>" ?</p>
-          <p class="text-caption text-negative">
+          <p class="text-grey-4">Êtes-vous sûr de vouloir supprimer le tournoi "<strong class="text-white">{{ tournament?.name }}</strong>" ?</p>
+          <p class="text-caption text-red-4">
             <q-icon name="warning" />
             Cette action est irréversible. Toutes les données associées à ce tournoi (catégories, compétiteurs, matchs, etc.) seront définitivement perdues.
           </p>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Annuler" color="primary" v-close-popup @click="cancelDelete" />
+          <q-btn 
+            flat 
+            label="Annuler" 
+            color="grey-4" 
+            class="github-btn-flat"
+            v-close-popup 
+            @click="cancelDelete" 
+          />
           <q-btn 
             flat 
             label="Supprimer" 
-            color="negative" 
+            color="red-4" 
+            class="github-btn-danger"
             @click="deleteTournament" 
             :loading="deletingTournament"
           />
@@ -563,11 +609,115 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+// Page background
+.github-page {
+  background: #0d1117;
+  color: #f0f6fc;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
+// Section separators like GitHub
+.section-separator {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  margin: 0;
+}
+
+// GitHub-style card
+.github-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+}
+
+// GitHub category cards
+.github-category-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  transition: border-color 0.2s ease;
+  
+  &:hover {
+    border-color: #58a6ff;
+  }
+}
+
+// GitHub-style buttons (from previous artifacts)
+.github-btn-flat {
+  color: #8b949e !important;
+  font-size: 14px !important;
+  
+  &:hover {
+    color: #f0f6fc !important;
+    background: rgba(177, 186, 196, 0.12) !important;
+  }
+}
+
+.github-btn-danger {
+  color: #f85149 !important;
+  
+  &:hover {
+    color: #ff7b72 !important;
+    background: rgba(248, 81, 73, 0.1) !important;
+  }
+}
+
+// GitHub-style tables
+.github-table {
+  background: transparent !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  
+  :deep(.q-table__top) {
+    background: transparent !important;
+  }
+  
+  :deep(.q-table__middle) {
+    background: transparent !important;
+  }
+  
+  :deep(.q-table thead tr) {
+    background: #161b22 !important;
+  }
+  
+  :deep(.q-table thead th) {
+    background: #161b22 !important;
+    color: #f0f6fc !important;
+    border-bottom: 1px solid #30363d !important;
+    font-weight: 600 !important;
+  }
+  
+  :deep(.q-table tbody tr) {
+    background: transparent !important;
+    
+    &:hover {
+      background: rgba(177, 186, 196, 0.06) !important;
+    }
+  }
+  
+  :deep(.q-table tbody td) {
+    color: #e6edf3 !important;
+    border-bottom: 1px solid #21262d !important;
+  }
+  
+  :deep(.q-table tbody tr:last-child td) {
+    border-bottom: none !important;
+  }
+}
+
+// GitHub-style dialog
+.github-dialog {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+}
+
+// Tournament details
 .tournament-header {
   margin-bottom: 2rem;
 }
@@ -582,18 +732,12 @@ onMounted(() => {
   .detail-item {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     
     .q-icon {
-      margin-right: 0.5rem;
+      margin-right: 0.75rem;
     }
   }
-}
-
-.category-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 .category-header {
@@ -609,5 +753,18 @@ onMounted(() => {
   align-items: center;
   min-height: 400px;
   text-align: center;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .row.items-center.justify-between {
+    flex-direction: column;
+    align-items: flex-start !important;
+    
+    .q-gutter-sm {
+      margin-top: 1rem;
+      align-self: flex-end;
+    }
+  }
 }
 </style>
