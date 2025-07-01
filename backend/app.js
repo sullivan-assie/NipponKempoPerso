@@ -145,11 +145,12 @@ const getMongoUri = () => {
   const isProduction = process.env.NODE_ENV === 'production';
   
   if (isProduction) {
-    // Production : utilise Atlas
-    const atlasUri = process.env.MONGO_URI || 
-      'mongodb+srv://Admin:Azerty01@cluster0.3ivtdbu.mongodb.net/nippon-kempo?retryWrites=true&w=majority&appName=Cluster0';
+    // Production : utilise Atlas (URI depuis les variables d'environnement)
+    if (!process.env.MONGO_URI) {
+      throw new Error('❌ MONGO_URI est requis en production');
+    }
     fastify.log.info('🌍 Utilisation de MongoDB Atlas (Production)');
-    return atlasUri;
+    return process.env.MONGO_URI;
   } else {
     // Local : utilise Docker
     const localUri = process.env.MONGO_URI || 
