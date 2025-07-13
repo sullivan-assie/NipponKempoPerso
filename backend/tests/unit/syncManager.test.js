@@ -121,8 +121,12 @@ describe('Tests unitaires du SyncManager', () => {
     });
 
     it('doit gérer les erreurs lors de la synchronisation', async () => {
-      // Configurer le mock pour simuler une erreur
-      mockModel.findById.mockRejectedValue(new Error('Test error'));
+      // Simuler une erreur au niveau de la validation des données (avant la boucle)
+      // En mockant Array.isArray pour lever une erreur
+      const originalIsArray = Array.isArray;
+      Array.isArray = jest.fn(() => {
+        throw new Error('Test error');
+      });
       
       const mockItemData = {
         name: 'Test Error Item',
@@ -132,11 +136,15 @@ describe('Tests unitaires du SyncManager', () => {
       // Exécuter la méthode syncData
       const result = await SyncManager.syncData(mockItemData, 'test', MockModel);
 
-      // Vérifier les résultats
+      // Vérifier les résultats - erreur globale attrapée
       expect(result.created).toBe(0);
       expect(result.updated).toBe(0);
       expect(result.errors).toHaveLength(1);
       expect(result.items).toHaveLength(0);
+      expect(result.errors[0]).toHaveProperty('error', 'Test error');
+      
+      // Restaurer Array.isArray
+      Array.isArray = originalIsArray;
     });
 
     it('doit traiter correctement un tableau d\'éléments', async () => {

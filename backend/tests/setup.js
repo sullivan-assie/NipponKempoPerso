@@ -1,3 +1,28 @@
+// Configuration globale pour les tests Jest
+// Éviter les warnings et problèmes de setup
+
+// Mock global pour MongoDB/Mongoose pour éviter les timeouts
+jest.setTimeout(10000);
+
+// Mock console pour réduire le bruit dans les tests
+global.console = {
+  ...console,
+  // Garder seulement les erreurs importantes
+  log: jest.fn(),
+  warn: jest.fn(),
+  info: jest.fn(),
+  error: console.error // Garder les erreurs réelles
+};
+
+// Variables d'environnement pour les tests
+process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = 'test-secret-key';
+process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
+
+// Mock global pour éviter les erreurs de modules non trouvés
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Configuration de base pour les tests
 const fastify = require('fastify')({ logger: false }); // Logger désactivé en test
 const mongoose = require('mongoose');
