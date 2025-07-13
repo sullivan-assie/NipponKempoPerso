@@ -330,6 +330,50 @@
           <div class="col-12 col-md-3">
             <h6 class="text-subtitle1 text-weight-medium q-mb-md text-grey-3">Support</h6>
             <q-list dense class="text-grey-5">
+              <div class="col-12 col-md-3">
+  <h6 class="text-subtitle1 text-weight-medium q-mb-md text-grey-3">Support</h6>
+  <q-list dense class="text-grey-5">
+    <q-item 
+      clickable 
+      class="text-grey-5"
+      @click="openSupportTicket"
+    >
+      <q-item-section avatar>
+        <q-icon name="bug_report" color="negative" />
+      </q-item-section>
+      <q-item-section>Signaler un problème</q-item-section>
+    </q-item>
+    
+    <q-item 
+      clickable 
+      class="text-grey-5"
+      @click="openEvolutionRequest"
+    >
+      <q-item-section avatar>
+        <q-icon name="lightbulb" color="warning" />
+      </q-item-section>
+      <q-item-section>Demander une évolution</q-item-section>
+    </q-item>
+    
+    <q-item 
+      clickable 
+      class="text-grey-5"
+      @click="openSupportDashboard"
+    >
+      <q-item-section avatar>
+        <q-icon name="dashboard" color="primary" />
+      </q-item-section>
+      <q-item-section>Suivi de mes tickets</q-item-section>
+    </q-item>
+    
+    <q-item clickable class="text-grey-5">
+      <q-item-section avatar>
+        <q-icon name="help" color="info" />
+      </q-item-section>
+      <q-item-section>Centre d'aide</q-item-section>
+    </q-item>
+  </q-list>
+</div>
               <q-item clickable class="text-grey-5">
                 <q-item-section>Centre d'aide</q-item-section>
               </q-item>
@@ -526,6 +570,58 @@ const onAuthSuccess = (user) => {
   } else {
     router.push('/tournaments');
   }
+};
+// Ajoute ces variables dans ton setup()
+const supportFab = ref(false);
+const supportDialog = ref(false);
+
+// Ajoute ces méthodes
+const openIncidentDialog = () => {
+  supportFab.value = false;
+  supportDialog.value = true;
+};
+
+const openEvolutionDialog = () => {
+  supportFab.value = false;
+  redirectToEvolution();
+};
+
+const openSupportDashboard = () => {
+  const projectUrl = 'https://github.com/users/sullivan-assie/projects/[TON_PROJECT_NUMBER]';
+  window.open(projectUrl, '_blank');
+};
+
+const redirectToP1Incident = () => {
+  const url = 'https://github.com/sullivan-assie/nipponKempoPerso/issues/new?template=01-incident-bloquant.yml';
+  window.open(url, '_blank');
+  supportDialog.value = false;
+};
+
+const redirectToP2Incident = () => {
+  const url = 'https://github.com/sullivan-assie/nipponKempoPerso/issues/new?template=02-incident-majeur.yml';
+  window.open(url, '_blank');
+  supportDialog.value = false;
+};
+
+const redirectToEvolution = () => {
+  const url = 'https://github.com/sullivan-assie/nipponKempoPerso/issues/new?template=04-evolution.yml';
+  window.open(url, '_blank');
+  supportDialog.value = false;
+};
+
+const redirectToQuestion = () => {
+  const url = 'https://github.com/sullivan-assie/nipponKempoPerso/issues/new?template=05-question.yml';
+  window.open(url, '_blank');
+  supportDialog.value = false;
+};
+
+const openSupportTicket = () => {
+  const url = 'https://github.com/sullivan-assie/nipponKempoPerso/issues/new/choose';
+  window.open(url, '_blank');
+};
+
+const openEvolutionRequest = () => {
+  redirectToEvolution();
 };
 
 onMounted(() => {
