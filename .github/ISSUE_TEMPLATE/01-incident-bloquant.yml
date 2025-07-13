@@ -1,0 +1,61 @@
+name: 🚨 Incident Bloquant (P1)
+description: Service inaccessible ou fuite de données
+title: "[P1-BLOQUANT] "
+labels: ["P1-Bloquant", "incident", "urgent"]
+assignees: ["ton-username"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ INCIDENT CRITIQUE - Traitement immédiat requis
+        **SLA :** Prise en compte 1h, Résolution 3h
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description de l'incident
+      description: Décris précisément le problème
+      placeholder: "Le service est complètement inaccessible depuis..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Quel est l'impact sur les utilisateurs ?
+      options:
+        - Service complètement inaccessible
+        - Fuite de données personnelles
+        - Sécurité compromise
+        - Perte de données
+    validations:
+      required: true
+
+  - type: input
+    id: started
+    attributes:
+      label: Heure de début
+      description: Quand le problème a-t-il commencé ?
+      placeholder: "14h30"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Comment reproduire
+      description: Étapes pour reproduire le problème
+      placeholder: |
+        1. Aller sur https://nipponkempoperso.onrender.com
+        2. Essayer de se connecter
+        3. Erreur 500 apparaît
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Solution de contournement
+      description: Y a-t-il une solution temporaire ?
+      placeholder: "Aucune connue / Redirection vers page statique"

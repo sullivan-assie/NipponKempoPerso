@@ -1,0 +1,40 @@
+name: ⚠️ Incident Majeur (P2)
+description: Service dégradé ou problème intermittent
+title: "[P2-MAJEUR] "
+labels: ["P2-Majeur", "incident"]
+assignees: ["ton-username"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Incident Majeur - Traitement prioritaire
+        **SLA :** Prise en compte 2h, Résolution 6h
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du problème
+      description: Décris le dysfonctionnement observé
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Fréquence
+      options:
+        - Problème intermittent
+        - Problème permanent avec contournement
+        - Performance très dégradée
+        - Erreurs fréquentes (>5%)
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact_users
+    attributes:
+      label: Impact utilisateurs
+      description: Combien d'utilisateurs sont affectés ?
+      placeholder: "Tous les utilisateurs / Utilisateurs mobiles / Senseis uniquement"
+    validations:
+      required: true

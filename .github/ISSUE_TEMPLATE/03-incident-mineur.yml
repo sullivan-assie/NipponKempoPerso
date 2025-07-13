@@ -1,0 +1,31 @@
+name: ⚡ Incident Mineur (P3)
+description: Problème cosmétique ou gêne mineure
+title: "[P3-MINEUR] "
+labels: ["P3-Mineur", "incident"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Incident Mineur - Traitement normal
+        **SLA :** Prise en compte 7h, Résolution 40h
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Décris le problème observé
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type de problème
+      options:
+        - Problème d'affichage
+        - Erreur de texte/traduction
+        - Performance légèrement dégradée
+        - Problème UX mineur
+        - Bug cosmétique
+    validations:
+      required: true

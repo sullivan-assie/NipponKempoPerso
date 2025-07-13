@@ -1,0 +1,23 @@
+name: ❓ Question / Support
+description: Question sur l'utilisation de l'application
+title: "[QUESTION] "
+labels: ["question", "support"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Quelle est ta question ?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type de question
+      options:
+        - Comment utiliser une fonctionnalité
+        - Problème de connexion
+        - Question sur les données
+        - Demande de formation
+        - Autre

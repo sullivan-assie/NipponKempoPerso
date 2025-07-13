@@ -1,0 +1,56 @@
+name: ✨ Demande d'Évolution
+description: Nouvelle fonctionnalité ou amélioration
+title: "[EVOLUTION] "
+labels: ["évolution", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Demande d'Évolution - Analyse requise
+        Cette demande fera l'objet d'une estimation (délai + coût)
+
+  - type: textarea
+    id: need
+    attributes:
+      label: Besoin métier
+      description: Quel est le besoin du dojo ?
+      placeholder: "En tant que sensei, je souhaite pouvoir..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description fonctionnelle
+      description: Décris la fonctionnalité souhaitée
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorité métier
+      options:
+        - Critique (bloque l'activité)
+        - Importante (améliore significativement)
+        - Souhaitable (confort d'usage)
+        - Nice-to-have (bonus)
+    validations:
+      required: true
+
+  - type: input
+    id: deadline
+    attributes:
+      label: Échéance souhaitée
+      description: Y a-t-il une date limite ?
+      placeholder: "Pour la rentrée (septembre) / Pas d'urgence"
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critères d'acceptation
+      description: Comment savoir que c'est terminé ?
+      placeholder: |
+        - [ ] Je peux créer un nouvel adhérent
+        - [ ] Les données sont sauvegardées
+        - [ ] J'ai une confirmation
