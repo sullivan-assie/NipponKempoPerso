@@ -21,7 +21,7 @@
     "bcryptjs": "^2.4.3",
     "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
-    "fastify": "^4.24.3",
+    "fastify": "^5.4.0",
     "mongoose": "^7.6.7",
     "nodemailer": "^7.0.3"
   },
