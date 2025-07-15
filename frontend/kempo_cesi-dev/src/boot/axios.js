@@ -2,10 +2,10 @@
 import { boot } from 'quasar/wrappers';
 import axios from 'axios';
 
-// Backend API URL - sera remplacé par l'URL réelle en production
+// Backend API URL - configuration pour Render
 const apiBaseURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:3000/api'
-  : '/api';
+  : 'https://nipponkempoperso.onrender.com/api'; // ✅ URL complète de votre backend sur Render
 
 // Création d'une instance axios avec une configuration par défaut
 const api = axios.create({
