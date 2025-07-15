@@ -1,10 +1,10 @@
-
 require('dotenv').config();
 const fastify = require('fastify')({ logger: true });
 const mongoose = require('mongoose');
 const path = require('path');
 const routes = require('./routes');
 const SyncManager = require('./utils/syncManager');
+const bcrypt = require('bcryptjs');
 
 // Plugin CORS essentiel
 fastify.register(require('@fastify/cors'), { 
@@ -34,6 +34,49 @@ fastify.decorate('mongoose', mongoose);
 
 // Décorateur pour rendre le SyncManager disponible dans les routes
 fastify.decorate('syncManager', SyncManager);
+
+// Fonction pour créer un administrateur par défaut
+const createDefaultAdmin = async () => {
+  try {
+    const User = require('./models/User');
+    
+    // Vérifier si un admin existe déjà
+    const adminExists = await User.findOne({ role: 'admin' });
+    if (adminExists) {
+      fastify.log.info('✅ Compte administrateur déjà existant');
+      return;
+    }
+    
+    fastify.log.info('🔧 Création du compte administrateur par défaut...');
+    
+    // Créer le mot de passe haché
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('admin123', salt);
+    
+    // Créer l'administrateur
+    const admin = new User({
+      firstName: "Admin",
+      lastName: "Kempo",
+      name: "Admin Kempo",
+      email: "admin@kempo.fr",
+      password: hashedPassword,
+      role: "admin",
+      status: true,
+      RGPDConsent: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+    await admin.save();
+    fastify.log.info('✅ Compte administrateur créé avec succès');
+    fastify.log.info('📧 Email: admin@kempo.fr');
+    fastify.log.info('🔑 Mot de passe: admin123');
+    fastify.log.info('⚠️  N\'oubliez pas de changer le mot de passe en production !');
+    
+  } catch (error) {
+    fastify.log.error('❌ Erreur lors de la création de l\'administrateur:', error.message);
+  }
+};
 
 // Fonction pour obtenir l'URI MongoDB selon l'environnement
 const getMongoUri = () => {
@@ -87,6 +130,9 @@ const connectDB = async () => {
     const connection = mongoose.connection;
     fastify.log.info(`📊 Base de données: ${connection.name}`);
     fastify.log.info(`🏠 Host: ${connection.host}`);
+    
+    // Appeler la fonction pour créer un administrateur par défaut
+    await createDefaultAdmin();
     
   } catch (err) {
     fastify.log.error('❌ Erreur de connexion MongoDB:', err.message);
