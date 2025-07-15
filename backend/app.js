@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const fastify = require('fastify')({ logger: true });
 const mongoose = require('mongoose');
@@ -6,10 +5,28 @@ const path = require('path');
 const routes = require('./routes');
 const SyncManager = require('./utils/syncManager');
 
-// Plugin CORS essentiel
+// Importation des middlewares de sécurité OWASP
+const { registerSecurityMiddlewares } = require('./middleware/security');
+const { SecurityLogger, createSecurityLoggingMiddleware } = require('./middleware/securityLogger');
+
+// Initialisation du logger de sécurité
+const securityLogger = new SecurityLogger(fastify.log);
+
+// Plugin CORS sécurisé selon l'environnement
+const corsOrigins = process.env.NODE_ENV === 'production' 
+  ? (process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['https://nippon-kempo.onrender.com'])
+  : ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:9500'];
+
 fastify.register(require('@fastify/cors'), { 
-  origin: '*',
-  methods: ['GET', 'PUT', 'POST', 'DELETE']
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+});
+
+// Enregistrement des middlewares de sécurité (A05 - Security Misconfiguration)
+fastify.register(async function (fastify) {
+  await registerSecurityMiddlewares(fastify);
 });
 
 // JWT pour l'authentification
@@ -17,6 +34,50 @@ fastify.register(require('@fastify/jwt'), {
   secret: process.env.JWT_SECRET || 'nippon-kempo-secret-key',
   sign: {
     expiresIn: '7d'  // Durée de validité du token
+  }
+});
+
+// Middleware de logging de sécurité (A09 - Security Logging)
+fastify.addHook('onRequest', async (request, reply) => {
+  // Attacher le logger de sécurité à chaque requête
+  request.securityLogger = securityLogger;
+  
+  // Nettoyer les tentatives anciennes périodiquement
+  if (Math.random() < 0.01) { // 1% de chance à chaque requête
+    securityLogger.cleanupOldAttempts();
+  }
+});
+
+// Middleware pour logger automatiquement les événements de sécurité
+fastify.addHook('onSend', async (request, reply, payload) => {
+  const secLogger = request.securityLogger;
+  
+  if (reply.statusCode === 401) {
+    secLogger.logUnauthorizedAccess(
+      request.ip,
+      request.headers['user-agent'],
+      request.url,
+      request.method
+    );
+  }
+  
+  if (reply.statusCode === 403) {
+    secLogger.logPrivilegeEscalation(
+      request.user?.id,
+      request.user?.email,
+      request.ip,
+      `${request.method} ${request.url}`,
+      request.headers['user-agent']
+    );
+  }
+
+  if (reply.statusCode === 429) {
+    secLogger.logRateLimitExceeded(
+      request.ip,
+      request.headers['user-agent'],
+      request.url,
+      'Rate limit exceeded'
+    );
   }
 });
 
@@ -29,11 +90,10 @@ fastify.decorate('authenticate', async (request, reply) => {
   }
 });
 
-// Décorateur pour rendre mongoose disponible dans les routes
+// Décorateurs pour rendre les services disponibles dans les routes
 fastify.decorate('mongoose', mongoose);
-
-// Décorateur pour rendre le SyncManager disponible dans les routes
 fastify.decorate('syncManager', SyncManager);
+fastify.decorate('securityLogger', securityLogger);
 
 // Fonction pour obtenir l'URI MongoDB selon l'environnement
 const getMongoUri = () => {
@@ -143,6 +203,37 @@ fastify.get('/api/ping-db', async (request, reply) => {
       message: 'Erreur lors de la vérification de la connexion',
       environment: process.env.NODE_ENV || 'development'
     });
+  }
+});
+
+// Route pour les statistiques de sécurité (Admin seulement)
+fastify.get('/api/security/stats', {
+  preHandler: [fastify.authenticate, async (request, reply) => {
+    if (request.user.role !== 'admin') {
+      return reply.code(403).send({ error: 'Forbidden', message: 'Admin access required' });
+    }
+  }]
+}, async (request, reply) => {
+  try {
+    const stats = securityLogger.getSecurityStats();
+    
+    // Logger l'accès aux données sensibles
+    securityLogger.logDataAccess(
+      request.user.id,
+      request.user.email,
+      'security_stats',
+      'read',
+      request.ip
+    );
+    
+    return {
+      ...stats,
+      timestamp: new Date().toISOString(),
+      requestedBy: request.user.email
+    };
+  } catch (error) {
+    fastify.log.error('Error fetching security stats:', error);
+    return reply.code(500).send({ error: 'Server Error', message: 'Unable to fetch security statistics' });
   }
 });
 

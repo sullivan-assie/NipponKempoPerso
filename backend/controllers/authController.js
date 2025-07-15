@@ -11,12 +11,17 @@ exports.login = async (request, reply) => {
   try {
     console.log('====== DÉBUT CONNEXION UTILISATEUR ======');
     const { email, password } = request.body;
+    const ip = request.ip;
+    const userAgent = request.headers['user-agent'];
     console.log(`Tentative de connexion: ${email}`);
 
     // Vérifier si l'utilisateur existe
     const user = await User.findOne({ email });
     if (!user) {
       console.log(`Connexion échouée: Utilisateur ${email} introuvable`);
+      if (request.securityLogger) {
+        request.securityLogger.logAuthFailure(email, ip, userAgent, 'User not found');
+      }
       return reply.code(401).send({ error: 'Unauthorized', message: 'Email ou mot de passe invalide' });
     }
 
@@ -26,6 +31,9 @@ exports.login = async (request, reply) => {
     // Vérifier si l'utilisateur est actif
     if (!user.status) {
       console.log(`Connexion échouée: Compte ${email} désactivé`);
+      if (request.securityLogger) {
+        request.securityLogger.logAuthFailure(email, ip, userAgent, 'Account disabled');
+      }
       return reply.code(401).send({ error: 'Unauthorized', message: 'Compte désactivé' });
     }
 
@@ -33,6 +41,9 @@ exports.login = async (request, reply) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       console.log(`Connexion échouée: Mot de passe incorrect pour ${email}`);
+      if (request.securityLogger) {
+        request.securityLogger.logAuthFailure(email, ip, userAgent, 'Invalid password');
+      }
       return reply.code(401).send({ error: 'Unauthorized', message: 'Email ou mot de passe invalide' });
     }
 
@@ -42,6 +53,11 @@ exports.login = async (request, reply) => {
     user.lastLogin = Date.now();
     await user.save();
     console.log(`Date de dernière connexion mise à jour pour ${email}: ${new Date(user.lastLogin).toISOString()}`);
+
+    // Logger connexion réussie
+    if (request.securityLogger) {
+      request.securityLogger.logAuthSuccess(user._id, user.email, ip, userAgent);
+    }
 
     // Générer un token JWT
     const token = await reply.jwtSign({
@@ -77,6 +93,15 @@ exports.login = async (request, reply) => {
     console.error('Pile d\'appel:', error.stack);
     console.error('====== FIN ERREUR DE CONNEXION ======');
     
+    if (request.securityLogger) {
+      request.securityLogger.logSuspiciousActivity(
+        request.ip, 
+        request.headers['user-agent'], 
+        'Login system error',
+        { error: error.message }
+      );
+    }
+
     request.log.error(error);
     return reply.code(500).send({ error: 'Server Error', message: error.message });
   }
@@ -89,12 +114,22 @@ exports.register = async (request, reply) => {
   try {
     console.log('====== DÉBUT INSCRIPTION UTILISATEUR ======');
     const { firstName, lastName, email, password, fighterNumber, clubName, RGPDConsent } = request.body;
+    const ip = request.ip;
+    const userAgent = request.headers['user-agent'];
     console.log(`Tentative d'inscription: ${email} avec numéro de combattant: ${fighterNumber} et club: ${clubName || 'non spécifié'}`);
 
     // Vérifier si l'utilisateur existe déjà
     let user = await User.findOne({ email });
     if (user) {
       console.log(`Inscription échouée: L'utilisateur ${email} existe déjà`);
+      if (request.securityLogger) {
+        request.securityLogger.logSuspiciousActivity(
+          ip, 
+          userAgent, 
+          'Registration attempt with existing email',
+          { email, attemptedAction: 'duplicate_registration' }
+        );
+      }
       return reply.code(400).send({ error: 'Bad Request', message: 'L\'utilisateur existe déjà' });
     }
     
@@ -130,6 +165,11 @@ exports.register = async (request, reply) => {
 
     await user.save();
     console.log(`Utilisateur ${email} créé avec succès, rôle: ${user.role}, numéro de combattant: ${fighterNumber}, club: ${clubName || 'non spécifié'}`);
+
+    // Logger création de compte
+    if (request.securityLogger) {
+      request.securityLogger.logAccountCreation(email, ip, userAgent, 'user');
+    }
 
     // Générer un token JWT
     const token = await reply.jwtSign({
@@ -214,12 +254,22 @@ exports.forgotPassword = async (request, reply) => {
   try {
     console.log('====== DÉBUT DEMANDE RÉINITIALISATION MOT DE PASSE ======');
     const { email } = request.body;
+    const ip = request.ip;
+    const userAgent = request.headers['user-agent'];
     console.log(`Demande de réinitialisation de mot de passe pour: ${email}`);
     
     // Vérifier si l'utilisateur existe
     const user = await User.findOne({ email });
     if (!user) {
       console.log(`Aucun compte trouvé avec l'email: ${email}`);
+      if (request.securityLogger) {
+        request.securityLogger.logSuspiciousActivity(
+          ip, 
+          userAgent, 
+          'Password reset attempt for non-existent email',
+          { email, attemptedAction: 'password_reset_invalid_email' }
+        );
+      }
       return reply.code(404).send({ 
         error: 'Not Found', 
         message: 'Aucun compte n\'est associé à cette adresse email' 
@@ -227,6 +277,11 @@ exports.forgotPassword = async (request, reply) => {
     }
     
     console.log(`Utilisateur trouvé pour réinitialisation: ${email}`);
+    
+    // Logger demande de reset légitime
+    if (request.securityLogger) {
+      request.securityLogger.logPasswordReset(email, ip, userAgent, 'email');
+    }
     
     // Générer un token aléatoire
     const resetToken = crypto.randomBytes(20).toString('hex');
@@ -300,6 +355,8 @@ exports.resetPassword = async (request, reply) => {
     console.log('====== DÉBUT RÉINITIALISATION MOT DE PASSE ======');
     const { token } = request.params;
     const { password } = request.body;
+    const ip = request.ip;
+    const userAgent = request.headers['user-agent'];
     console.log(`Tentative de réinitialisation du mot de passe avec le token: ${token}`);
     
     // Rechercher l'utilisateur avec le token valide et non expiré
@@ -310,6 +367,14 @@ exports.resetPassword = async (request, reply) => {
     
     if (!user) {
       console.log(`Aucun utilisateur trouvé avec le token ${token} ou token expiré`);
+      if (request.securityLogger) {
+        request.securityLogger.logSuspiciousActivity(
+          ip, 
+          userAgent, 
+          'Password reset attempt with invalid token',
+          { token: token.substring(0, 8) + '...', attemptedAction: 'invalid_reset_token' }
+        );
+      }
       return reply.code(400).send({
         error: 'Bad Request',
         message: 'Le token de réinitialisation est invalide ou expiré'
@@ -331,6 +396,19 @@ exports.resetPassword = async (request, reply) => {
     
     await user.save();
     console.log(`Mot de passe réinitialisé avec succès pour ${user.email}`);
+
+    // Logger réinitialisation réussie
+    if (request.securityLogger) {
+      request.securityLogger.logDataModification(
+        user._id, 
+        user.email, 
+        'user_password', 
+        'password_reset', 
+        ip,
+        { resetMethod: 'token' }
+      );
+    }
+
     console.log('====== FIN RÉINITIALISATION MOT DE PASSE ======');
     
     return {

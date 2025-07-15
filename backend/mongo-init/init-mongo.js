@@ -1,10 +1,20 @@
-// Cette script sera exécuté lors du premier démarrage de MongoDB
+// Script d'initialisation MongoDB sécurisé
+// Utilise les variables d'environnement pour éviter les credentials hardcodés
+
 db = db.getSiblingDB('nippon-kempo');
 
-// Création de l'utilisateur pour l'application
+// Récupération des credentials depuis les variables d'environnement
+const dbUser = process.env.DB_USER || 'nippon_app';
+const dbPassword = process.env.DB_PASSWORD;
+
+if (!dbPassword) {
+  throw new Error('DB_PASSWORD environment variable is required');
+}
+
+// Création de l'utilisateur pour l'application avec des credentials sécurisés
 db.createUser({
-  user: 'nippon_app',
-  pwd: 'nippon_password',
+  user: dbUser,
+  pwd: dbPassword,
   roles: [
     {
       role: 'readWrite',
@@ -37,14 +47,24 @@ db.categories.insertMany([
   { name: "Femmes +65kg", type: "weight", createdAt: new Date(), updatedAt: new Date() }
 ]);
 
-// Création d'un utilisateur admin par défaut
-// Mot de passe: 'admin123'
+// Création d'un utilisateur admin sécurisé
+const adminEmail = process.env.ADMIN_EMAIL || "admin@nippon-kempo.com";
+const adminPassword = process.env.ADMIN_PASSWORD;
+
+if (!adminPassword) {
+  throw new Error('ADMIN_PASSWORD environment variable is required');
+}
+
+// Hash du mot de passe admin (doit être généré dynamiquement en production)
+const bcrypt = require('bcryptjs');
+const salt = bcrypt.genSaltSync(10);
+const hashedAdminPassword = bcrypt.hashSync(adminPassword, salt);
+
 db.users.insertOne({
   firstName: "Admin",
-  lastName: "Nippon-Kempo",
-  email: "admin@nippon-kempo.com",
-  // Mot de passe haché avec bcrypt 
-  password: "$2b$10$X/oRorXs2C9tXjJtNc3preRyPKuKa9HCJqfE6QQ0AcLl8vsJ8Ebce",
+  lastName: "Nippon-Kempo", 
+  email: adminEmail,
+  password: hashedAdminPassword,
   role: "admin",
   status: true,
   RGPDConsent: true,
@@ -78,4 +98,4 @@ db.competitors.insertMany([
   }
 ]);
 
-print("Initialisation de MongoDB terminée avec succès !");
+print("Initialisation sécurisée de MongoDB terminée avec succès !");
